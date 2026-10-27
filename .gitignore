@@ -1,0 +1,7 @@
+# 调试产物（重新生成的接触表 / 拼图）
+tools/_*.png
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini

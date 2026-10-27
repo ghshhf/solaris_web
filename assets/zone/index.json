@@ -1,0 +1,113 @@
+{
+ "wasteland": [
+  "0.webp",
+  "1.webp",
+  "2.webp",
+  "3.webp",
+  "4.webp",
+  "5.webp",
+  "6.webp",
+  "7.webp",
+  "8.webp",
+  "9.webp",
+  "10.webp",
+  "11.webp",
+  "12.webp",
+  "13.webp",
+  "14.webp",
+  "15.webp"
+ ],
+ "forest": [
+  "0.webp",
+  "1.webp",
+  "2.webp",
+  "3.webp",
+  "4.webp",
+  "5.webp",
+  "6.webp",
+  "7.webp"
+ ],
+ "forest_cave": [
+  "0.webp",
+  "1.webp",
+  "2.webp",
+  "3.webp",
+  "4.webp",
+  "5.webp",
+  "6.webp",
+  "7.webp",
+  "8.webp",
+  "9.webp",
+  "10.webp",
+  "11.webp",
+  "12.webp",
+  "13.webp",
+  "14.webp",
+  "15.webp"
+ ],
+ "trial": [
+  "0.webp",
+  "1.webp",
+  "2.webp",
+  "3.webp",
+  "4.webp",
+  "5.webp",
+  "6.webp",
+  "7.webp"
+ ],
+ "volcano": [
+  "0.webp",
+  "1.webp",
+  "2.webp",
+  "3.webp",
+  "4.webp",
+  "5.webp",
+  "6.webp",
+  "7.webp"
+ ],
+ "sea_cave": [
+  "0.webp",
+  "1.webp",
+  "2.webp",
+  "3.webp",
+  "4.webp",
+  "5.webp",
+  "6.webp",
+  "7.webp"
+ ],
+ "_layer": {
+  "sky": [],
+  "ground": [],
+  "leaf1": [
+   "0.webp",
+   "1.webp",
+   "2.webp",
+   "3.webp",
+   "4.webp",
+   "5.webp",
+   "6.webp",
+   "7.webp"
+  ],
+  "leaf2": [
+   "0.webp",
+   "1.webp",
+   "2.webp",
+   "3.webp",
+   "4.webp",
+   "5.webp",
+   "6.webp",
+   "7.webp",
+   "8.webp"
+  ],
+  "leaf3": [
+   "0.webp",
+   "1.webp",
+   "2.webp",
+   "3.webp",
+   "4.webp",
+   "5.webp",
+   "6.webp",
+   "7.webp"
+  ]
+ }
+}

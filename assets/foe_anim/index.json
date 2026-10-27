@@ -1,0 +1,478 @@
+{
+ "clawbird": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "scissorbug": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "scale_beast": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ]
+ },
+ "vine_beast": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "slime_golem": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "hi_golem": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "red_dragon": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "balthasar": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "tetia": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "croise": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ },
+ "homukuro": {
+  "idle": [
+   "idle_0.webp",
+   "idle_1.webp",
+   "idle_2.webp",
+   "idle_3.webp",
+   "idle_4.webp",
+   "idle_5.webp",
+   "idle_6.webp",
+   "idle_7.webp"
+  ],
+  "warn": [
+   "warn_0.webp",
+   "warn_1.webp",
+   "warn_2.webp",
+   "warn_3.webp"
+  ],
+  "hit": [
+   "hit_0.webp",
+   "hit_1.webp",
+   "hit_2.webp",
+   "hit_3.webp",
+   "hit_4.webp",
+   "hit_5.webp",
+   "hit_6.webp",
+   "hit_7.webp"
+  ],
+  "down": [
+   "down_0.webp",
+   "down_1.webp",
+   "down_2.webp",
+   "down_3.webp",
+   "down_4.webp",
+   "down_5.webp"
+  ],
+  "buff": [
+   "buff_0.webp",
+   "buff_1.webp",
+   "buff_2.webp",
+   "buff_3.webp",
+   "buff_4.webp",
+   "buff_5.webp"
+  ]
+ }
+}

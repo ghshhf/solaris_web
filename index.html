@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="theme-color" content="#1a1310"/>
+<title>索拉丽斯炼成计划 · 网页版</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;background:#100b08;overflow:hidden;}
+body{font-family:-apple-system,system-ui,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  color:#f2e8d5;-webkit-font-smoothing:antialiased;}
+img{image-rendering:pixelated;}
+
+#stage{position:fixed;inset:0;max-width:520px;margin:0 auto;overflow:hidden;background:#0d0906;}
+#bg{position:absolute;inset:0;background-position:center;background-size:cover;background-repeat:no-repeat;
+  opacity:0;transition:opacity .45s;}
+#bg.on{opacity:1;}
+#shade{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(12,8,5,.55) 0%,rgba(12,8,5,.05) 26%,rgba(12,8,5,.30) 62%,rgba(10,7,4,.84) 100%);}
+#sprites{position:absolute;inset:0;pointer-events:none;z-index:5;}
+.sprite{position:absolute;bottom:13%;height:60%;transition:all .3s cubic-bezier(.3,.8,.4,1);
+  filter:brightness(.6) saturate(.72);transform:translateY(8px) scale(.95);opacity:.88;}
+.sprite.say{filter:brightness(1.06) drop-shadow(0 0 16px rgba(255,220,150,.2));
+  transform:translateY(0) scale(1);opacity:1;z-index:2;}
+.sprite.left{left:-5%;}
+.sprite.right{right:-5%;}
+/* 裁掉透明边后画布尺寸各异，按角色原始身高换算，保证同屏身高比例一致 */
+.sprite.r-solaris{height:52%;}
+.sprite.r-homu{height:21%;bottom:9%;}
+.sprite.r-tetia{height:41%;}
+.sprite.r-croise{height:57%;}
+.sprite.r-melchior{height:64%;}
+.sprite.r-august{height:61%;}
+.sprite.r-balthasar{height:64%;}
+
+#hud{position:absolute;top:0;left:0;right:0;z-index:20;pointer-events:none;
+  padding:calc(9px + env(safe-area-inset-top)) 10px 8px;display:flex;gap:6px;flex-wrap:wrap;font-size:11px;}
+.cell{background:rgba(24,16,11,.82);border:1px solid rgba(217,164,65,.26);border-radius:9px;
+  padding:4px 9px;display:flex;gap:4px;align-items:baseline;backdrop-filter:blur(6px);}
+.cell b{font-size:14px;font-variant-numeric:tabular-nums;}
+.c-day b{color:#e8c37a;} .c-hp b{color:#e2766a;} .c-pow b{color:#e8a05c;}
+.c-def b{color:#8fb8d8;} .c-bond b{color:#8fd6b4;} .c-gold b{color:#e8c37a;}
+#btnMute{position:absolute;top:calc(9px + env(safe-area-inset-top));right:10px;z-index:21;
+  width:30px;height:30px;border-radius:9px;border:1px solid rgba(217,164,65,.26);
+  background:rgba(24,16,11,.82);color:#e8c37a;font-size:13px;line-height:1;cursor:pointer;
+  backdrop-filter:blur(6px);padding:0;}
+
+.pane{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;
+  padding:calc(56px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom));}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{width:0;}
+
+#title{align-items:center;justify-content:center;text-align:center;}
+#title .art{width:50%;max-width:220px;margin-bottom:6px;filter:drop-shadow(0 12px 34px rgba(0,0,0,.75));}
+#title .logo{font-size:27px;font-weight:800;letter-spacing:2px;line-height:1.35;
+  text-shadow:0 4px 22px rgba(0,0,0,.9),0 0 40px rgba(217,164,65,.28);}
+#title .logo small{display:block;font-size:11px;font-weight:500;letter-spacing:5px;color:#c9a56a;margin-top:10px;}
+#title .sub{margin-top:17px;font-size:12px;color:#b6a58c;line-height:1.85;letter-spacing:.4px;}
+
+.btn{width:100%;border:0;border-radius:12px;padding:14px 0;font-size:15px;font-weight:650;
+  font-family:inherit;cursor:pointer;letter-spacing:.6px;
+  background:linear-gradient(180deg,#c99a4c,#a97c33);color:#1e1409;
+  box-shadow:0 5px 18px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .09s;}
+.btn:active{transform:scale(.978);}
+.btn.ghost{background:rgba(30,21,14,.74);color:#e2d3ba;border:1px solid rgba(217,164,65,.3);box-shadow:none;}
+.btn.sm{padding:10px 0;font-size:13px;}
+.btn:disabled{opacity:.4;pointer-events:none;}
+.row{display:flex;gap:9px;}
+
+#dlg{position:absolute;left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:25;
+  background:linear-gradient(180deg,rgba(28,19,13,.95),rgba(18,12,8,.98));
+  border:1px solid rgba(217,164,65,.34);border-radius:14px;padding:12px 14px 16px;
+  box-shadow:0 10px 34px rgba(0,0,0,.62);min-height:104px;cursor:pointer;}
+#dlg .who{font-size:12px;font-weight:700;color:#e8c37a;letter-spacing:1.4px;margin-bottom:7px;}
+#dlg .who em{font-style:normal;font-size:10px;color:#9d8a70;letter-spacing:.5px;margin-left:7px;}
+#dlg .skip{margin-top:9px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:9px;background:rgba(217,164,65,.15);border:1px solid rgba(217,164,65,.34);
+  color:#e0bd7e;font-size:12px;letter-spacing:2px;cursor:pointer;transition:background .15s;
+  -webkit-tap-highlight-color:transparent;user-select:none;}
+#dlg .skip:active{background:rgba(217,164,65,.3);}
+#dlg .txt{font-size:14.5px;line-height:1.74;color:#f4ead8;white-space:pre-wrap;min-height:50px;}
+#dlg .nxt{position:absolute;right:12px;top:6px;font-size:10px;color:#8a7a62;animation:blink 1.4s infinite;}
+@keyframes blink{0%,60%{opacity:.3;}80%{opacity:1;}100%{opacity:.3;}}
+
+.day-head{text-align:center;padding:9px 0 11px;background:rgba(13,8,5,.66);
+  border:1px solid rgba(217,164,65,.16);border-radius:13px;margin-bottom:10px;
+  backdrop-filter:blur(5px);}
+.day-head .dnum{font-size:30px;font-weight:800;color:#e8c37a;letter-spacing:1px;font-variant-numeric:tabular-nums;}
+.day-head .dtxt{font-size:12px;color:#a3907a;letter-spacing:3px;margin-top:3px;}
+.cards{display:flex;flex-direction:column;gap:8px;}
+.acard{position:relative;background:linear-gradient(155deg,rgba(46,32,21,.93),rgba(26,18,12,.95));
+  border:1px solid rgba(217,164,65,.24);border-radius:13px;padding:11px 13px;cursor:pointer;
+  display:grid;grid-template-columns:30px 1fr;grid-template-rows:auto auto;column-gap:10px;
+  align-items:center;transition:transform .1s,border-color .15s;}
+.acard:active{transform:scale(.985);}
+.acard .ic{font-size:20px;line-height:1;grid-column:1;grid-row:1/3;display:block;text-align:center;}
+.acard .nm{font-size:14.5px;font-weight:700;letter-spacing:.5px;grid-column:2;grid-row:1;}
+.acard .ds{font-size:11.5px;color:#a3907a;line-height:1.45;margin-top:3px;
+  grid-column:2;grid-row:2;padding-right:44px;}
+.acard .tag{position:absolute;right:11px;top:11px;font-size:9.5px;padding:2px 7px;border-radius:7px;
+  background:rgba(217,164,65,.16);color:#e8c37a;border:1px solid rgba(217,164,65,.3);}
+.acard.combat{border-color:rgba(224,110,95,.36);} .acard.combat .ic{color:#e2766a;}
+.acard.talk{border-color:rgba(143,214,180,.33);}   .acard.talk .ic{color:#8fd6b4;}
+.acard.rest .ic{color:#8fb8d8;}
+.acard.study .ic{color:#c9a3e8;}
+.acard.shop .ic{color:#e8c37a;}
+
+/* ── 商店 ── */
+.shop-head{display:flex;justify-content:space-between;align-items:baseline;
+  padding:9px 12px 10px;margin-bottom:8px;background:rgba(13,8,5,.68);
+  border:1px solid rgba(217,164,65,.16);border-radius:12px;backdrop-filter:blur(5px);}
+.shop-head .t{font-size:18px;font-weight:800;letter-spacing:2px;color:#e8c37a;}
+.shop-head .g{font-size:12px;color:#c9a56a;font-variant-numeric:tabular-nums;}
+.sitem{display:flex;align-items:center;gap:10px;border-radius:13px;padding:11px 12px;margin-bottom:9px;
+  background:linear-gradient(155deg,rgba(46,32,21,.93),rgba(26,18,12,.95));
+  border:1px solid rgba(217,164,65,.24);}
+.sitem .ic{width:26px;text-align:center;font-size:19px;line-height:1;color:#e8c37a;flex:0 0 26px;}
+.sitem .mid{flex:1;min-width:0;}
+.sitem .nm{font-size:14.5px;font-weight:700;letter-spacing:.3px;}
+.sitem .ds{font-size:11.5px;color:#a3907a;margin-top:3px;line-height:1.45;}
+.sitem .buy{border:0;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:700;
+  font-family:inherit;letter-spacing:.5px;white-space:nowrap;cursor:pointer;
+  background:linear-gradient(180deg,#c99a4c,#a97c33);color:#1e1409;transition:transform .09s;}
+.sitem .buy:active{transform:scale(.95);}
+
+/* 装备面板 */
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px;}
+.slot{background:rgba(30,21,14,.9);border:1px dashed rgba(217,164,65,.30);border-radius:12px;
+  padding:10px 11px;min-height:76px;display:flex;flex-direction:column;gap:3px;}
+.slot.filled{border-style:solid;background:linear-gradient(160deg,rgba(58,41,25,.94),rgba(28,19,13,.96));}
+.slot .sh{font-size:10px;letter-spacing:2px;color:#8f7c60;}
+.slot .sn{font-size:14px;font-weight:700;color:#e8c37a;}
+.slot .sd{font-size:10.5px;color:#a3907a;line-height:1.4;}
+.slot .sx{font-size:10px;color:#c98a6a;margin-top:auto;cursor:pointer;text-decoration:underline;}
+
+/* 探索 */
+.zhd{display:flex;justify-content:space-between;align-items:baseline;padding:9px 12px 10px;
+  background:rgba(13,8,5,.68);border:1px solid rgba(217,164,65,.16);border-radius:12px;
+  margin-bottom:8px;backdrop-filter:blur(5px);}
+.zhd .zt{font-size:18px;font-weight:800;letter-spacing:2px;color:#e8c37a;}
+.zhd .zd{font-size:12px;color:#c9a56a;font-variant-numeric:tabular-nums;}
+.zstage{flex:1;min-height:0;border-radius:14px;overflow:hidden;position:relative;
+  background:#0b0705 center/cover no-repeat;border:1px solid rgba(217,164,65,.18);}
+/* 区域动画帧本身是透明特效层（落叶/火星/水雾），得垫在场景图上面 */
+.zstage .zanim{position:absolute;inset:0;background:center bottom/cover no-repeat;
+  mix-blend-mode:screen;opacity:.9;}
+.zstage .zscrim{position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 42%,transparent 34%,rgba(8,5,3,.72) 100%);}
+.zmark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:54px;color:rgba(255,214,140,.9);text-shadow:0 8px 34px rgba(0,0,0,.9);
+  pointer-events:none;}
+.sitem .buy:disabled{background:rgba(255,255,255,.09);color:#8a7a62;cursor:default;}
+.sitem.done{opacity:.55;}
+
+.foe-wrap{flex:0 0 auto;text-align:center;padding:2px 0 6px;}
+.foe{display:inline-block;min-width:200px;background:rgba(24,16,11,.8);
+  border:1px solid rgba(224,110,95,.38);border-radius:13px;padding:10px 15px;backdrop-filter:blur(5px);}
+.foe.hit{animation:foeShake .26s;}
+@keyframes foeShake{0%,100%{transform:none;}25%{transform:translateX(-7px);}50%{transform:translateX(7px);}75%{transform:translateX(-4px);}}
+.foe .fn{font-size:14px;font-weight:700;letter-spacing:.5px;}
+.foe .fbar{height:7px;border-radius:4px;background:rgba(255,255,255,.12);margin:8px 0 5px;overflow:hidden;}
+.foe .fbar i{display:block;height:100%;background:linear-gradient(90deg,#e0594c,#e88a5c);transition:width .3s;}
+.foe .fhp{font-size:11px;color:#c4b09a;font-variant-numeric:tabular-nums;}
+.foe .intent{display:inline-block;margin-top:7px;font-size:11.5px;padding:3px 10px;border-radius:9px;font-weight:600;}
+.it-atk{background:rgba(224,89,76,.22);color:#f0938a;}
+.it-buf{background:rgba(232,164,65,.2);color:#f0c684;}
+.it-def{background:rgba(143,184,216,.2);color:#a9cbe6;}
+
+.battle-mid{flex:1;min-height:0;position:relative;}
+#foeSprite{position:absolute;left:50%;top:3%;height:50%;width:62%;
+  transform:translateX(-50%);background-repeat:no-repeat;background-position:center bottom;
+  background-size:contain;filter:drop-shadow(0 12px 24px rgba(0,0,0,.72));
+  transition:transform .16s,filter .3s,opacity .3s;image-rendering:auto;}
+#foeSprite.hit{animation:foeShake .26s;}
+#foeSprite.dead{filter:brightness(.72) grayscale(.5);opacity:.55;
+  transform:translateX(-50%) translateY(10px);}
+/* 敌人状态图标：中毒/灼烧/负伤等都挂在这里 */
+.foe-status{position:absolute;left:50%;top:calc(3% + 50% - 22px);transform:translateX(-50%);
+  display:flex;gap:4px;z-index:3;pointer-events:none;}
+.foe-status i{width:22px;height:22px;background-size:contain;background-repeat:no-repeat;
+  background-position:center;filter:drop-shadow(0 2px 5px rgba(0,0,0,.8));
+  animation:stPulse 1.6s ease-in-out infinite;}
+@keyframes stPulse{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+/* 招式特效层：8 套原作特效帧动画都放这 */
+#fxLayer{position:absolute;inset:0;pointer-events:none;z-index:4;}
+#fxLayer .fxr{position:absolute;left:50%;top:0;width:74%;height:66%;transform:translateX(-50%);
+  background-repeat:no-repeat;background-position:center;background-size:contain;
+  mix-blend-mode:screen;filter:drop-shadow(0 0 18px rgba(255,220,150,.55));}
+/* 攻击轨迹：霍姆冲上去的那一下 */
+#lash{position:absolute;left:50%;bottom:26%;width:70%;height:3px;transform:translateX(-50%) scaleX(0);
+  transform-origin:center;background:linear-gradient(90deg,transparent,rgba(255,236,180,.95),transparent);
+  z-index:5;pointer-events:none;}
+#lash.on{animation:lashGo .34s ease-out;}
+@keyframes lashGo{0%{transform:translateX(-50%) scaleX(0);opacity:0;}
+  40%{transform:translateX(-50%) scaleX(1);opacity:1;}
+  100%{transform:translateX(-50%) scaleX(1);opacity:0;}}
+#homuSprite{position:absolute;left:50%;bottom:2%;height:30%;transform:translateX(-50%);
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.6));transition:transform .14s;}
+.hand,#btnSolaris{transition:opacity .18s;}
+#homuSprite.atk{transform:translateX(-50%) translateY(-16px) scale(1.05);}
+#homuSprite.hurt{transform:translateX(-50%) translateX(-10px);}
+
+.hand{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px 0 3px;}
+.card-sk{position:relative;background:linear-gradient(168deg,rgba(54,38,24,.95),rgba(26,18,12,.97));
+  border:1px solid rgba(217,164,65,.30);border-radius:10px;padding:7px 4px 6px;text-align:center;
+  cursor:pointer;transition:transform .09s,box-shadow .18s;}
+.card-sk::after{content:"";position:absolute;inset:2px;border-radius:8px;
+  border:1px solid rgba(217,164,65,.13);pointer-events:none;}
+.card-sk:active{transform:scale(.955);}
+.card-sk .kk{font-size:8.5px;letter-spacing:2px;color:#8f7c60;}
+.card-sk .nm{font-size:12.5px;font-weight:700;margin-top:1px;line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-sk .lv{font-size:9px;color:#c9a56a;margin-top:2px;letter-spacing:.5px;}
+.card-sk .vv{font-size:11px;color:#e6c98a;margin-top:3px;font-weight:600;}
+.card-sk .eb{height:3px;border-radius:2px;background:rgba(255,255,255,.10);margin-top:5px;overflow:hidden;}
+.card-sk .eb i{display:block;height:100%;background:linear-gradient(90deg,#d9a441,#f0d08a);
+  transition:width .3s;}
+.card-sk.up{box-shadow:0 0 0 1px rgba(240,208,138,.9),0 0 16px rgba(217,164,65,.55);}
+.card-sk.up .nm{color:#ffe9b0;}
+
+.logbox{font-size:11.5px;color:#a3907a;line-height:1.6;min-height:36px;max-height:54px;overflow:hidden;padding:5px 3px;}
+
+/* 出招飘字（原来 QTE 的位置，现在只做即时反馈） */
+#callout{position:absolute;left:50%;top:26%;transform:translate(-50%,-50%) scale(.7);z-index:42;
+  font-size:26px;font-weight:800;letter-spacing:6px;opacity:0;pointer-events:none;
+  text-shadow:0 4px 18px rgba(0,0,0,.9);transition:opacity .16s,transform .2s;}
+#callout.on{opacity:1;transform:translate(-50%,-50%) scale(1);}
+#callout.crit{color:#ffd97a;} #callout.slip{color:#9fb4c8;}
+
+#result{align-items:center;justify-content:center;text-align:center;gap:12px;}
+#result .rt{font-size:22px;font-weight:800;letter-spacing:2px;color:#f0d08a;
+  background:rgba(13,8,5,.78);border:1px solid rgba(217,164,65,.24);border-radius:12px;
+  padding:9px 22px;backdrop-filter:blur(6px);}
+#result .rl{font-size:12.5px;color:#d8c6a8;line-height:2.05;letter-spacing:.4px;
+  background:rgba(13,8,5,.74);border:1px solid rgba(217,164,65,.16);border-radius:12px;
+  padding:14px 18px;max-width:86%;backdrop-filter:blur(6px);}
+#end{align-items:center;justify-content:center;text-align:center;}
+
+.fx{position:absolute;font-weight:800;font-size:21px;pointer-events:none;z-index:50;
+  text-shadow:0 3px 12px rgba(0,0,0,.85);animation:fxup 1s ease-out forwards;}
+@keyframes fxup{0%{opacity:0;transform:translate(-50%,10px) scale(.75);}
+  16%{opacity:1;transform:translate(-50%,-4px) scale(1.1);}
+  100%{opacity:0;transform:translate(-50%,-46px) scale(1);}}
+.fx.dmg{color:#f0938a;} .fx.heal{color:#8fd6b4;} .fx.blk{color:#a9cbe6;} .fx.buf{color:#f0c684;}
+.fx.poison{color:#a8e07a;}
+
+#flash{position:absolute;inset:0;z-index:45;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at 50% 42%,rgba(224,60,44,.5),transparent 64%);transition:opacity .16s;}
+#toast{position:absolute;left:50%;top:34%;transform:translate(-50%,-14px);z-index:60;
+  background:rgba(28,19,13,.96);border:1px solid rgba(217,164,65,.36);border-radius:11px;
+  padding:9px 17px;font-size:12.5px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;}
+#toast.on{opacity:1;transform:translate(-50%,0);}
+.hide{display:none !important;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="shade"></div>
+  <div id="sprites"></div>
+  <div id="hud"></div>
+  <button id="btnMute" title="音乐开关">🔊</button>
+  <div class="pane" id="title">
+    <img class="art" src="assets/bg/battle.png" alt=""/>
+    <div class="logo">索拉丽斯炼成计划<small>P R O J E C T &nbsp; S O L A R I S</small></div>
+    <div class="sub">不成器的魔女与炼金搭档<br/>百日试炼 · 网页精简版</div>
+    <div style="width:78%;margin-top:26px;">
+      <button class="btn" id="btnStart">开 始 试 炼</button>
+      <div class="sub" style="font-size:10.5px;margin-top:12px;color:#7d6e5b;">
+        30 天 · 5 场首领 · 6 个区域 · 11 种魔物
+      </div>
+    </div>
+  </div>
+
+  <div class="pane hide" id="day">
+    <div class="scroll">
+      <div class="day-head">
+        <div class="dnum" id="dayNum">DAY 1</div>
+        <div class="dtxt">今天做什么呢？</div>
+      </div>
+      <div class="cards" id="dayCards"></div>
+    </div>
+  </div>
+
+  <div class="pane hide" id="shop">
+    <div class="shop-head">
+      <div class="t">奥加斯特的店</div>
+      <div class="g" id="shopGold">金币 0</div>
+    </div>
+    <div class="scroll"><div id="shopList"></div></div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn ghost sm" id="btnWork">帮工半天</button>
+      <button class="btn ghost sm" id="btnGearFromShop">行 装</button>
+      <button class="btn sm" id="btnLeave">离开商店</button>
+    </div>
+  </div>
+
+  <div class="pane hide" id="zone">
+    <div class="shop-head">
+      <div class="t">去 哪 儿</div>
+      <div class="g" id="zoneInfo">体力 60</div>
+    </div>
+    <div class="scroll"><div id="zoneList"></div></div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn sm" id="btnZoneBack">返 回</button>
+    </div>
+  </div>
+
+  <div class="pane hide" id="explore">
+    <div class="zhd">
+      <div class="zt" id="expZone">荒野</div>
+      <div class="zd" id="expDepth">第 1 层</div>
+    </div>
+    <div class="zstage" id="zstage">
+      <div class="zanim" id="zanim"></div>
+      <div class="zscrim"></div>
+      <div class="zmark" id="expMark"></div>
+    </div>
+    <div class="logbox" id="expLog">雾很重，看不清前面有什么。</div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn sm" id="btnAdvance">前 进</button>
+      <button class="btn ghost sm" id="btnSearch">搜 刮</button>
+      <button class="btn ghost sm" id="btnRetreat">撤 返</button>
+    </div>
+  </div>
+
+  <div class="pane hide" id="gear">
+    <div class="shop-head">
+      <div class="t">行 装</div>
+      <div class="g" id="gearStat">力 0 · 御 0</div>
+    </div>
+    <div class="slots">
+      <div class="slot" id="slotWeapon"></div>
+      <div class="slot" id="slotAcc"></div>
+    </div>
+    <div class="scroll" style="margin-top:8px;"><div id="gearList"></div></div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn sm" id="btnGearBack">返 回</button>
+    </div>
+  </div>
+
+  <div class="pane hide" id="battle">
+    <div class="foe-wrap">
+      <div class="foe" id="foeBox">
+        <div class="fn" id="foeName">史莱姆</div>
+        <div class="fbar"><i id="foeHp" style="width:100%"></i></div>
+        <div class="fhp" id="foeHpTx">22 / 22</div>
+        <div class="intent it-atk" id="foeIntent">攻击 4</div>
+      </div>
+    </div>
+    <div class="battle-mid" id="battleMid">
+      <div id="foeSprite"></div>
+      <div class="foe-status" id="foeStatus"></div>
+      <img id="homuSprite" src="assets/portrait/homu_spirit.png" alt=""/>
+      <div id="fxLayer"></div>
+      <div id="lash"></div>
+    </div>
+    <div class="logbox" id="blog"></div>
+    <div class="hand" id="skills"></div>
+    <button class="btn ghost sm" id="btnSolaris" style="margin-top:2px;">索拉丽斯接手 · 耗 10 HP</button>
+    <div id="callout"></div>
+  </div>
+
+  <div class="pane hide" id="result">
+    <div class="rt" id="resTitle">行动完成</div>
+    <div class="rl" id="resLines"></div>
+    <div style="width:80%;margin-top:18px;"><button class="btn" id="btnNext">继续</button></div>
+  </div>
+
+  <div class="pane hide" id="end">
+    <div style="width:84%;">
+      <div class="rt" id="endTitle">— 完 —</div>
+      <div class="rl" id="endLines" style="margin-top:14px;"></div>
+      <button class="btn" id="btnAgain" style="margin-top:22px;">再试一次</button>
+    </div>
+  </div>
+
+  <div id="dlg" class="hide">
+    <div class="who" id="dlgWho">索拉丽斯<em id="dlgEmo"></em></div>
+    <div class="txt" id="dlgTxt"></div>
+    <div class="skip" id="dlgSkip">跳过这段 ▶▶</div>
+    <div class="nxt">▼</div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="toast"></div>
+</div>
+
+<script src="data/story.js"></script>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i);};
+var rnd=function(n){return (Math.random()*n)|0;};
+var shuffle=function(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t;}return a;};
+var pick=function(a){return a[rnd(a.length)];};
+
+/* ═══════ 音效（WebAudio 合成，零文件） ═══════ */
+var AC=null;function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ AC=null; } } return AC; }
+function tone(f,dur,type,vol,to){
+  var c=ac(); if(!c) return;
+  try{
+    var o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.setValueAtTime(f,c.currentTime);
+    if(to) o.frequency.exponentialRampToValueAtTime(Math.max(40,to),c.currentTime+dur);
+    g.gain.setValueAtTime(0.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(vol||0.06,c.currentTime+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+dur);
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+dur+0.02);
+  }catch(e){}
+}
+var sfx={
+  tap:function(){tone(660,.06,"triangle",.05,880);},
+  card:function(){tone(520,.09,"sine",.05,700);},
+  hit:function(){tone(180,.12,"square",.05,90);},
+  crit:function(){tone(880,.10,"square",.06,1500);setTimeout(function(){tone(1200,.10,"square",.05,600);},70);},
+  hurt:function(){tone(120,.20,"sawtooth",.06,60);},
+  heal:function(){tone(660,.16,"sine",.05,990);},
+  ok:function(){tone(760,.10,"triangle",.06,1140);},
+  bad:function(){tone(200,.16,"square",.05,120);},
+  win:function(){[523,659,784,1046].forEach(function(f,i){setTimeout(function(){tone(f,.16,"triangle",.05,f*1.2);},i*100);});}
+};
+
+/* ═══════ BGM（原作 8 首，场景切换） ═══════
+   浏览器禁止自动播放，第一次点「开始试炼」时才真正起播，之后切歌都是即时的。 */
+var BGM={el:null, cur:null, muted:false, booted:false};
+function bgm(name){
+  if(BGM.muted || !name) return;
+  if(BGM.cur===name && BGM.el && !BGM.el.paused) return;
+  try{
+    if(!BGM.el){
+      BGM.el=new Audio();
+      BGM.el.loop=true;
+      BGM.el.volume=0.34;
+      BGM.el.preload="auto";
+    }
+    BGM.cur=name;
+    BGM.el.src="assets/bgm/"+name+".mp3";
+    var p=BGM.el.play();
+    if(p && p.catch) p.catch(function(){ /* 被自动播放策略拦下就等下次用户点击 */ });
+  }catch(e){}
+}
+function bgmMute(off){
+  BGM.muted=!!off;
+  if(BGM.el) BGM.el.volume=off?0:0.34;
+  if(!off && BGM.cur) bgm(BGM.cur);
+  var b=$("btnMute");
+  if(b) b.textContent=off?"🔇":"🔊";
+}
+
+/* ═══════ 角色 ═══════ */
+var CH={
+  solaris:{name:"索拉丽斯",side:"left"}, homu:{name:"霍姆",side:"right"},
+  tetia:{name:"特提娅",side:"left"},     croise:{name:"克洛瓦洁",side:"left"},
+  melchior:{name:"梅尔希奥",side:"right"}, august:{name:"奥加斯特",side:"right"},
+  balthasar:{name:"巴尔塔萨",side:"right"}
+};
+var EMO={
+  solaris:{normal:"通常",smile:"笑顔",trouble:"困り顔",shy:"照れ",cry:"泣き",angry:"怒り",
+           despair:"絶望",sparkle:"輝き",proud:"ドヤ顔",shock:"愕然",sad:"悲しみ",serious:"真顔"},
+  homu:{normal:"通常",joy:"喜び",spirit:"気合",worry:"悩み",panic:"慌て",wail:"号泣"},
+  tetia:{normal:"通常",smile:"笑顔",angry:"怒り",surprise:"驚き"},
+  croise:{normal:"通常",smile:"微笑",angry:"怒り",surprise:"驚き"},
+  melchior:{normal:"通常",smile:"微笑",think:"思考"},
+  august:{normal:"通常",grin:"にやり"},
+  balthasar:{normal:"通常",laugh:"大笑い"}
+};
+
+/* ═══════ 状态 ═══════ */
+var S=null, MAXBOND=5, MAXDAY=30;
+function newGame(){
+  S={day:0,maxDay:MAXDAY,hp:60,maxHp:60,pow:0,def:0,bond:1,gold:0,wins:0,talks:0,
+     lv:{},exp:{}, bag:[], gear:{weapon:null,acc:null}, zone:{}, seen:{}};
+  TREE.forEach(function(t){ S.lv[t.id]=1; S.exp[t.id]=0; });
+}
+
+/* ═══════ 画面 ═══════ */
+var PANES=["title","day","shop","gear","zone","explore","battle","result","end"];
+function show(id){
+  PANES.forEach(function(k){ $(k).classList.toggle("hide", k!==id); });
+}
+function setBg(name){
+  var el=$("bg");
+  if(el.dataset.cur===name) return;
+  el.dataset.cur=name;
+  var img=new Image();
+  img.onload=function(){
+    el.style.backgroundImage='url("assets/bg/'+name+'.png")';
+    el.classList.add("on");
+  };
+  img.src="assets/bg/"+name+".png";
+}
+function dayBg(){ var r=(S.day||1)/MAXDAY; setBg(r<0.28?"morning":(r<0.62?"day":"night")); }
+
+/* ═══════ HUD ═══════ */
+function hud(){
+  $("hud").innerHTML=
+    '<div class="cell c-day">DAY<b>'+Math.max(1,S.day)+'</b>/'+MAXDAY+'</div>'+
+    '<div class="cell c-hp">HP<b>'+Math.max(0,Math.round(S.hp))+'</b></div>'+
+    '<div class="cell c-pow">力<b>'+S.pow+'</b></div>'+
+    '<div class="cell c-def">御<b>'+S.def+'</b></div>'+
+    '<div class="cell c-bond">绊<b>'+S.bond+'</b></div>'+
+    '<div class="cell c-gold">金<b>'+S.gold+'</b></div>';
+}
+
+/* ═══════ 立绘 ═══════ */
+var SP={};
+function clearSprites(){ $("sprites").innerHTML=""; SP={}; }
+function setSprites(who,emo){
+  if(!SP[who]){
+    var img=document.createElement("img");
+    img.className="sprite "+((CH[who]&&CH[who].side)||"left")+" r-"+who;
+    img.onerror=function(){ this.style.display="none"; };
+    $("sprites").appendChild(img);
+    SP[who]=img;
+  }
+  SP[who].style.display="";
+  SP[who].src="assets/portrait/"+who+"_"+emo+".png";
+  Object.keys(SP).forEach(function(k){ SP[k].classList.toggle("say",k===who); });
+}
+
+/* ═══════ 对话 ═══════ */
+var D={list:[],i:0,cb:null,typing:false,timer:null,full:""};
+function runStory(list,cb){
+  D.list=list; D.i=0; D.cb=cb||null;
+  clearSprites();
+  PANES.forEach(function(k){ $(k).classList.add("hide"); });
+  $("dlg").classList.remove("hide");
+  nextLine();
+}
+function nextLine(){
+  if(D.i>=D.list.length){ endStory(); return; }
+  var L=D.list[D.i++];
+  var ch=CH[L.w]||{name:"？？？"};
+  $("dlgWho").firstChild.nodeValue=ch.name;
+  $("dlgEmo").textContent=(EMO[L.w]&&EMO[L.w][L.e])||"";
+  setSprites(L.w,L.e);
+  typeText(L.t);
+}
+function typeText(t){
+  var el=$("dlgTxt");
+  D.full=t; D.typing=true; el.textContent="";
+  clearInterval(D.timer);
+  var i=0;
+  D.timer=setInterval(function(){
+    i++; el.textContent=t.slice(0,i);
+    if(i>=t.length){ clearInterval(D.timer); D.typing=false; }
+  },22);
+}
+function advance(){
+  if(D.typing){ clearInterval(D.timer); $("dlgTxt").textContent=D.full; D.typing=false; return; }
+  sfx.tap(); nextLine();
+}
+function endStory(){
+  clearInterval(D.timer); D.typing=false;
+  $("dlg").classList.add("hide");
+  var cb=D.cb; D.cb=null;
+  if(cb) cb(); else { renderDay(); }
+}
+/* 跳过：整段剧情直接收尾，直接进入下一环节（战斗 / 每日 / 结算） */
+function skipStory(){
+  if(!D.list||!D.list.length) return;
+  clearInterval(D.timer); D.typing=false;
+  D.i=D.list.length;
+  endStory();
+}
+
+/* ═══════ 每日 ═══════ */
+var ACTIONS=[
+  {k:"explore",ic:"◈",nm:"探索",ds:"进荒野、森林、火山……\n一层层往下推，越深越凶",tag:"核心"},
+  {k:"combat", ic:"⚔",nm:"战斗",ds:"就近打一场\n稳一点，不深入",tag:"费 HP"},
+  {k:"talk",  ic:"❖",nm:"交流",ds:"和霍姆说说话\n羁绊越高，出招越狠",tag:"加羁绊"},
+  {k:"rest",  ic:"☾",nm:"休息",ds:"什么都不做，好好睡一觉\n恢复体力",tag:"回 HP"},
+  {k:"study", ic:"✦",nm:"学习",ds:"研读炼金术\n挑一项属性提升",tag:"加属性"},
+  {k:"shop",  ic:"◈",nm:"商店",ds:"去奥加斯特的店\n打工赚金币，或买装备与招式书",tag:"赚钱/购物"},
+  {k:"gear",  ic:"⚒",nm:"行装",ds:"看看手头的杖与指轮\n换上更趁手的",tag:"装备"}
+];
+var ACT_BY={}; ACTIONS.forEach(function(a){ ACT_BY[a.k]=a; });
+
+function renderDay(){
+  hud(); dayBg(); show("day");
+  bgm(S.day<=MAXDAY*0.35?"day":(S.day<=MAXDAY*0.72?"forest":"night"));
+  $("dayNum").textContent="DAY "+S.day;
+  var box=$("dayCards"); box.innerHTML="";
+  /* 探索永远在，其余随机三张 —— 不让人扑空 */
+  var rest=shuffle(ACTIONS.filter(function(a){ return a.k!=="explore"; })).slice(0,3);
+  [ACT_BY.explore].concat(rest).forEach(function(a){
+    var d=document.createElement("div");
+    d.className="acard "+a.k;
+    d.innerHTML='<span class="ic">'+a.ic+'</span><div class="tag">'+a.tag+'</div>'+
+      '<div class="nm">'+a.nm+'</div><div class="ds">'+a.ds.replace(/\n/g," · ")+'</div>';
+    d.onclick=function(){ sfx.card(); doAction(a.k); };
+    box.appendChild(d);
+  });
+}
+function doAction(k){
+  if(k==="explore") openZone();
+  else if(k==="combat") startBattle(pick(zoneFoes(pick(ZONES))).i, null);
+  else if(k==="talk") doTalk();
+  else if(k==="rest") doRest();
+  else if(k==="study") doStudy();
+  else if(k==="gear") openGear(null);
+  else openShop();
+}
+function doRest(){
+  var heal=Math.round(S.maxHp*0.34)+S.bond*2;
+  var before=S.hp;
+  S.hp=Math.min(S.maxHp,S.hp+heal);
+  sfx.heal(); hud();
+  finishAction("休息",["霍姆蜷在你旁边睡着了。","体力恢复 "+(S.hp-before)+"。"]);
+}
+function doStudy(){
+  var opts=[
+    {t:"研读《魔素干涉论》",d:"力量 +2",f:function(){S.pow+=2;}},
+    {t:"练习防御结界",      d:"防御 +2",f:function(){S.def+=2;}},
+    {t:"复习炼金配方",      d:"金币 +12",f:function(){S.gold+=12;}}
+  ];
+  var o=opts[rnd(opts.length)]; o.f(); sfx.ok(); hud();
+  finishAction("学习",[o.t,"效果："+o.d]);
+}
+/* ═══════ 商店（奥加斯特的店） ═══════ */
+/* ═══════ 装备（原作 18 件：6 杖 / 6 指轮 / 6 护身符） ═══════
+   两槽：武器（杖）+ 饰品（指轮或护身符）。装卸即时改属性，不另立基础值。 */
+var GEAR=[
+  {id:"claw_wand",  slot:"weapon", nm:"钩爪之杖",  ic:"🪄", pow:5,  price:42, ds:"力量 +5"},
+  {id:"poison_wand",slot:"weapon", nm:"剧毒之杖",  ic:"☠",  pow:7,  price:64, ds:"力量 +7，毒招伤害更狠"},
+  {id:"fire_wand",  slot:"weapon", nm:"火焰之杖",  ic:"🔥", pow:8,  price:70, ds:"力量 +8"},
+  {id:"meteor_wand",slot:"weapon", nm:"流星之杖",  ic:"☄",  pow:9,  price:80, ds:"力量 +9"},
+  {id:"rage_wand",  slot:"weapon", nm:"狂乱之杖",  ic:"✴",  pow:10, price:88, ds:"力量 +10"},
+  {id:"blaze_wand", slot:"weapon", nm:"业炎之杖",  ic:"🕯",  pow:12, price:104, ds:"力量 +12（原作最强杖）"},
+
+  {id:"sprout_ring",slot:"acc",    nm:"新芽指轮",  ic:"🌱", regen:3, price:40, ds:"每回合回 3 点体力"},
+  {id:"water_ring", slot:"acc",    nm:"水滴指轮",  ic:"💧", def:6,  price:46, ds:"防御 +6"},
+  {id:"crystal_ring",slot:"acc",   nm:"结晶指轮",  ic:"💠", def:8,  price:64, ds:"防御 +8"},
+  {id:"lava_ring",  slot:"acc",    nm:"熔岩指轮",  ic:"🌋", pow:5, def:3, price:72, ds:"力量 +5、防御 +3"},
+  {id:"needle_ring",slot:"acc",    nm:"针山指轮",  ic:"🦔", thorns:5, price:62, ds:"反伤 +5（挨打就还手）"},
+  {id:"trust_ring", slot:"acc",    nm:"信赖指轮",  ic:"💍", bond:1, price:56, ds:"羁绊 +1"},
+
+  {id:"breeze_amu", slot:"acc",    nm:"微风护符",  ic:"🍃", def:4,  price:38, ds:"防御 +4"},
+  {id:"copper_amu", slot:"acc",    nm:"赤铜护符",  ic:"🟠", def:5,  price:52, ds:"防御 +5"},
+  {id:"mist_amu",   slot:"acc",    nm:"雾之护符",  ic:"🌫",  healup:6, price:58, ds:"回复招式效果 +6"},
+  {id:"bless_amu",  slot:"acc",    nm:"祝福护符",  ic:"✨", hp:14,  price:66, ds:"体力上限 +14"},
+  {id:"stand_amu",  slot:"acc",    nm:"不屈护符",  ic:"🛡",  shieldup:5, price:78, ds:"护盾招式效果 +5"},
+  {id:"miracle_amu",slot:"acc",    nm:"奇迹护符",  ic:"🌟", pow:4, def:4, hp:10, price:118, ds:"力量 +4、防御 +4、上限 +10"}
+];
+var GEAR_BY={}; GEAR.forEach(function(g){ GEAR_BY[g.id]=g; });
+
+/* 自己拥有的装备（买过就在这） */
+function ownGear(id){
+  if(!S.bag) S.bag=[];
+  if(S.bag.indexOf(id)<0) S.bag.push(id);
+}
+function gearBonus(g){
+  return {pow:g.pow||0, def:g.def||0, hp:g.hp||0, bond:g.bond||0};
+}
+function applyGearOut(g){
+  if(!g) return;
+  S.pow-=g.pow||0; S.def-=g.def||0;
+  if(g.hp){ S.maxHp-=g.hp; S.hp=Math.min(S.hp,S.maxHp); }
+  if(g.bond && S.bond>1) S.bond--;
+}
+function applyGearIn(g){
+  if(!g) return;
+  S.pow+=g.pow||0; S.def+=g.def||0;
+  if(g.hp){ S.maxHp+=g.hp; S.hp+=g.hp; }
+  if(g.bond && S.bond<MAXBOND) S.bond++;
+}
+function curGear(slot){ return S.gear && S.gear[slot]? GEAR_BY[S.gear[slot]] : null; }
+/* 穿装备：同槽先脱 */
+function equipGear(id){
+  var g=GEAR_BY[id];
+  if(!g) return false;
+  if(!S.gear) S.gear={weapon:null,acc:null};
+  var old=curGear(g.slot);
+  if(old && old.id===id) return false;
+  applyGearOut(old);
+  S.gear[g.slot]=id;
+  applyGearIn(g);
+  hud(); renderGear(); renderShop();
+  return true;
+}
+function unequipGear(slot){
+  var old=curGear(slot);
+  if(!old) return false;
+  applyGearOut(old);
+  S.gear[slot]=null;
+  hud(); renderGear(); renderShop();
+  return true;
+}
+/* 装备带来的特殊效果，战斗里查这几个 */
+function gearHas(key){
+  var a=curGear("weapon"), b=curGear("acc");
+  return ((a&&a[key])||0)+((b&&b[key])||0);
+}
+
+var SHOP_BASE=[
+  {ic:"⚔", nm:"练习用短剑", ds:"力量 +3",                    price:22, f:function(){ S.pow+=3; }},
+  {ic:"⛨", nm:"旧皮护甲",   ds:"防御 +3",                    price:22, f:function(){ S.def+=3; }},
+  {ic:"✚", nm:"治愈药水",   ds:"回复 24 点体力",             price:16, f:function(){ S.hp=Math.min(S.maxHp,S.hp+24); }},
+  {ic:"❖", nm:"护身符",     ds:"体力上限 +12，并补上这 12 点", price:28, f:function(){ S.maxHp+=12; S.hp+=12; }},
+  {ic:"♨", nm:"热茶与点心", ds:"回复 14 点体力，羁绊 +1",     price:26, f:function(){
+      S.hp=Math.min(S.maxHp,S.hp+14); if(S.bond<MAXBOND) S.bond++; }},
+  {ic:"◇", nm:"磨刀石",     ds:"力量 +2，防御 +1",           price:18, f:function(){ S.pow+=2; S.def+=1; }}
+];
+var SHOP_STOCK=[];
+
+/* 熟练度灌水（不在战斗里也能升级，所以不能用 gainExp —— 它要写 B.justUp） */
+function addExp(t,n){
+  for(var i=0;i<n;i++){
+    var lv=S.lv[t.id];
+    if(lv>=MAXLV) return;
+    S.exp[t.id]=(S.exp[t.id]||0)+1;
+    if(S.exp[t.id]>=LV_NEED[lv-1]){ S.exp[t.id]=0; S.lv[t.id]=lv+1; }
+  }
+}
+function makeBook(){
+  var t=TREE[rnd(TREE.length)], lv=S.lv[t.id], full=(lv>=MAXLV);
+  return {ic:"✦", nm:"招式书·"+t.kk+"之书", price:30,
+    ds: full? "「"+t.nm[lv-1]+"」已经到极，这本用不上了"
+            : "「"+t.nm[lv-1]+"」熟练度 +3（大概升 1–2 级）",
+    f: full? null : function(){ addExp(t,3); }};
+}
+/* 装备货：只出还没拥有的那一件 */
+function makeGearItem(){
+  var bag=S.bag||[];
+  var pool=GEAR.filter(function(g){ return bag.indexOf(g.id)<0; });
+  if(!pool.length) return null;
+  var g=pick(pool);
+  return {ic:g.ic, nm:g.nm, price:g.price, gear:g.id,
+    ds:g.ds+"（买下后到「行装」里穿）",
+    f:function(){ ownGear(g.id); }};
+}
+function rollShop(){
+  var base=SHOP_BASE.slice(), got=[];
+  got.push(base.splice(rnd(base.length),1)[0]);
+  var gi=makeGearItem();
+  if(gi) got.push(gi);
+  else if(base.length) got.push(base.splice(rnd(base.length),1)[0]);
+  got.push(makeBook());
+  SHOP_STOCK=got.map(function(it){
+    return {ic:it.ic, nm:it.nm, ds:it.ds, price:it.price, f:it.f, gear:it.gear, bought:false};
+  });
+}
+function openShop(){
+  rollShop();
+  S.shop={wage:8+rnd(10)+S.bond*2, worked:false, log:[]};
+  setBg("shop");
+  bgm("shop");
+  hud(); show("shop");
+  renderShop();
+}
+function renderShop(){
+  if(!S.shop) return;
+  $("shopGold").textContent="金币 "+S.gold;
+  var box=$("shopList"); box.innerHTML="";
+  SHOP_STOCK.forEach(function(it,idx){
+    var ok=(!it.bought && !!it.f && S.gold>=it.price);
+    var d=document.createElement("div");
+    d.className="sitem"+((it.bought||!it.f)?" done":"");
+    d.innerHTML='<div class="ic">'+it.ic+'</div>'+
+      '<div class="mid"><div class="nm">'+it.nm+'</div><div class="ds">'+it.ds+'</div></div>';
+    var b=document.createElement("button");
+    b.className="buy";
+    b.textContent = it.bought? "已购入" : (it.f? it.price+" 金" : "售罄");
+    b.disabled=!ok;
+    b.onclick=function(){ buyItem(idx); };
+    d.appendChild(b);
+    box.appendChild(d);
+  });
+  var w=$("btnWork");
+  w.disabled=S.shop.worked;
+  w.textContent=S.shop.worked? "今天已经干过活了" : "帮工半天 · +"+S.shop.wage+" 金";
+}
+function buyItem(i){
+  var it=SHOP_STOCK[i];
+  if(!it||it.bought||!it.f||S.gold<it.price) return;
+  S.gold-=it.price; it.bought=true;
+  it.f(); sfx.ok(); hud();
+  S.shop.log.push("买了「"+it.nm+"」—— "+it.ds);
+  toast("「"+it.nm+"」到手");
+  renderShop();
+}
+function workShop(){
+  if(!S.shop||S.shop.worked) return;
+  S.shop.worked=true;
+  S.gold+=S.shop.wage;
+  sfx.ok(); hud();
+  S.shop.log.push("帮着看店到天黑，赚到 "+S.shop.wage+" 金");
+  renderShop();
+}
+function leaveShop(){
+  var lines=(S.shop&&S.shop.log.length)? S.shop.log.slice(0)
+                                        : ["什么都没买，转了一圈就出来了。"];
+  S.shop=null;
+  finishAction("商店", lines);
+}
+
+/* ═══════ 探索：6 个区域，逐层推进 ═══════
+   素材来自原作 荒野/森/森洞窟/試しの儀/火山/海洞窟 的场景动画帧 */
+var ZONES=[
+  {id:"wasteland",  nm:"荒野",     ds:"城外的荒地。爪鸟低飞，风里都是沙。",   lv:1, unlock:1,  floors:4},
+  {id:"forest",     nm:"森",       ds:"雾散不开。树影里有东西在动。",         lv:2, unlock:1,  floors:5},
+  {id:"forest_cave",nm:"森洞窟",   ds:"树根交错的地下洞，水滴声很响。",       lv:3, unlock:8,  floors:5},
+  {id:"volcano",    nm:"火山",     ds:"脚下是热岩，红龙盘在深处。",           lv:4, unlock:15, floors:6},
+  {id:"sea_cave",   nm:"海洞窟",   ds:"潮水灌进来的岩洞，回声很长。",         lv:4, unlock:20, floors:6},
+  {id:"trial",      nm:"试炼之仪", ds:"炼成计划的最后一关，仪式场地。",       lv:5, unlock:26, floors:7}
+];
+var ZONE_FR={wasteland:16, forest:8, forest_cave:16, trial:8, volcano:8, sea_cave:8};
+/* 区域底图：区域动画是特效层，底下还得有个真正的场景 */
+var ZONE_BG={wasteland:"day", forest:"day", forest_cave:"night",
+             volcano:"boss", sea_cave:"night", trial:"battle"};
+var Z=null, ZA={id:null,i:0,timer:null};
+
+function zoneBgPlay(zid){
+  zoneBgStop();
+  ZA.id=zid; ZA.i=0;
+  var st=$("zstage"), an=$("zanim"), n=ZONE_FR[zid]||1;
+  st.style.backgroundImage='url("assets/bg/'+(ZONE_BG[zid]||"day")+'.png")';
+  an.style.backgroundImage='url("assets/zone/'+zid+'/0.webp")';
+  ZA.timer=setInterval(function(){
+    ZA.i=(ZA.i+1)%n;
+    an.style.backgroundImage='url("assets/zone/'+zid+'/'+ZA.i+'.webp")';
+  },140);
+}
+function zoneBgStop(){ if(ZA.timer){ clearInterval(ZA.timer); ZA.timer=null; } }
+
+function zoneById(id){ for(var i=0;i<ZONES.length;i++) if(ZONES[i].id===id) return ZONES[i]; return null; }
+function zoneUnlocked(z){ return Math.max(1,S.day||1)>=z.unlock; }
+function zoneFoes(z){ return FOES.map(function(f,i){ return {f:f,i:i}; })
+  .filter(function(o){ return (o.f.dp||[]).indexOf(z.id)>-1; }); }
+
+function openZone(){
+  show("zone"); renderZoneList();
+}
+function renderZoneList(){
+  hud();
+  $("zoneInfo").textContent="体力 "+Math.max(0,Math.round(S.hp))+" / "+S.maxHp;
+  var box=$("zoneList"); box.innerHTML="";
+  ZONES.forEach(function(z){
+    var ok=zoneUnlocked(z);
+    var cleared=(S.zone&&S.zone[z.id])||0;
+    var d=document.createElement("div");
+    d.className="sitem"+(ok?"":" done");
+    d.innerHTML='<div class="ic">'+(ok?"◈":"🔒")+'</div>'+
+      '<div class="mid"><div class="nm">'+z.nm+
+        ' <span style="font-size:10px;color:#8f7c60;">深度 '+z.floors+'</span></div>'+
+      '<div class="ds">'+(ok? z.ds : "第 "+z.unlock+" 天才开放")+
+        (cleared? '<br/>已通关 '+cleared+' 次':'')+'</div></div>';
+    if(ok){
+      var b=document.createElement("button");
+      b.className="buy"; b.textContent="进入";
+      b.onclick=function(){ sfx.card(); enterZone(z.id); };
+      d.appendChild(b);
+    }
+    box.appendChild(d);
+  });
+}
+function enterZone(zid){
+  var z=zoneById(zid);
+  if(!z) return;
+  Z={id:zid, depth:1, floors:z.floors, searched:false, busy:false, kills:0, loot:[]};
+  show("explore");
+  zoneBgPlay(zid);
+  $("expZone").textContent=z.nm;
+  $("expMark").textContent="";
+  renderExplore("踏进来了。"+z.ds);
+}
+function renderExplore(msg){
+  var z=zoneById(Z.id);
+  $("expDepth").textContent="第 "+Z.depth+" / "+Z.floors+" 层"+(Z.searched?" · 已搜过":"");
+  $("expMark").textContent=Z.depth>=Z.floors?"⚔":"";
+  if(msg) $("expLog").textContent=msg;
+  $("btnAdvance").textContent=Z.depth>=Z.floors?"挑战首领":"前 进";
+  $("btnSearch").disabled=Z.searched;
+  $("btnSearch").textContent=Z.searched?"搜过了":"搜 刮";
+  hud();
+}
+function advanceZone(){
+  if(!Z||Z.busy) return;
+  Z.busy=true;
+  var z=zoneById(Z.id);
+  /* 到底了 → 首领战 */
+  if(Z.depth>=Z.floors){
+    var pool=zoneFoes(z).filter(function(o){ return o.f.boss; });
+    /* 没有 boss 档的区域（荒野/森），拿血最厚的那只当首领 */
+    if(!pool.length){
+      pool=zoneFoes(z).slice().sort(function(a,b){ return b.f.hp-a.f.hp; }).slice(0,1);
+    }
+    if(!pool.length){ Z.busy=false; retreat("这里什么都没有。"); return; }
+    var pickFoe=pick(pool);
+    $("expLog").textContent=z.nm+"的深处 —— "+pickFoe.f.nm+"挡在面前。";
+    setTimeout(function(){
+      startBattle(pickFoe.i, function(){
+        show("explore"); zoneBgPlay(Z.id);
+        Z.depth=Z.floors+1;
+        Z.busy=false;
+        S.zone[Z.id]=(S.zone[Z.id]||0)+1;
+        retreat("击败了"+pickFoe.f.nm+"，这一趟到此为止。");
+      });
+    },600);
+    return;
+  }
+  /* 普通层：随机事件 */
+  var r=Math.random();
+  if(r<0.55){
+    var fs=zoneFoes(z);
+    if(!fs.length){ Z.busy=false; Z.depth++; renderExplore("这一层很安静。"); return; }
+    var o=pick(fs);
+    $("expLog").textContent="前方有动静 —— "+o.f.nm+"！";
+    setTimeout(function(){
+      startBattle(o.i, function(){
+        show("explore"); zoneBgPlay(Z.id);
+        Z.depth++; Z.searched=false; Z.busy=false; Z.kills++;
+        renderExplore("打赢了。往深处走了一层。");
+      });
+    },700);
+    return;
+  }
+  if(r<0.74){
+    var g=6+rnd(10)+z.lv*3;
+    S.gold+=g; Z.loot.push("金币 +"+g);
+    Z.depth++; Z.searched=false; Z.busy=false;
+    sfx.ok();
+    renderExplore("地上散着些钱币，捡了 "+g+" 金。");
+    return;
+  }
+  if(r<0.86){
+    var heal=8+rnd(12);
+    S.hp=Math.min(S.maxHp,S.hp+heal);
+    Z.depth++; Z.searched=false; Z.busy=false;
+    sfx.heal();
+    renderExplore("找到一处还算干净的水源，回了 "+heal+" 点体力。");
+    return;
+  }
+  /* 陷阱 */
+  var dmg=4+rnd(6)+z.lv*2;
+  S.hp=Math.max(0,S.hp-dmg);
+  Z.depth++; Z.searched=false; Z.busy=false;
+  sfx.hurt(); hud();
+  if(S.hp<=0){ Z.busy=true; setTimeout(function(){ endGame(false); },500); return; }
+  renderExplore("踩到松动的岩块，摔了一跤，掉 "+dmg+" 点体力。");
+}
+function searchZone(){
+  if(!Z||Z.busy||Z.searched) return;
+  Z.searched=true;
+  sfx.ok();
+  var r=Math.random();
+  if(r<0.45){
+    var g=4+rnd(12)+zoneById(Z.id).lv*2;
+    S.gold+=g; Z.loot.push("金币 +"+g);
+    renderExplore("翻遍了角落，捡到 "+g+" 金。");
+  } else if(r<0.72){
+    var it=pick(SHOP_BASE);
+    it.f(); Z.loot.push(it.nm);
+    renderExplore("摸到一样东西 —— "+it.nm+"，"+it.ds+"。");
+  } else {
+    renderExplore("什么都没有，全是空箱子。");
+  }
+  hud();
+}
+function retreat(reason){
+  if(!Z){ renderDay(); return; }
+  zoneBgStop();
+  var z=zoneById(Z.id), lines=[];
+  lines.push(reason||"见好就收，退了出来。");
+  if(Z.depth>1) lines.push("推进到第 "+Math.min(Z.depth,z.floors)+" 层。");
+  if(Z.kills) lines.push("路上打倒了 "+Z.kills+" 只。");
+  if(Z.loot.length) lines.push("带回："+Z.loot.slice(0,4).join("、"));
+  Z=null;
+  finishAction("探索", lines);
+}
+function retreatAsk(){ if(Z&&!Z.busy) retreat("决定不再往里走了。"); }
+
+/* ═══════ 行装（装备面板） ═══════ */
+var GEAR_CB=null;
+function openGear(cb){
+  GEAR_CB=cb||null;
+  bgm("shop");
+  show("gear"); renderGear();
+}
+function closeGear(){
+  var cb=GEAR_CB; GEAR_CB=null;
+  sfx.tap();
+  if(cb) cb(); else renderDay();
+  hud();
+}
+function renderGear(){
+  if(!S.gear) S.gear={weapon:null,acc:null};
+  $("gearStat").textContent="力 "+S.pow+" · 御 "+S.def+" · 上限 "+S.maxHp+" · 绊 "+S.bond;
+  [["weapon","武器 · 杖","slotWeapon"],["acc","饰品 · 指轮/护符","slotAcc"]].forEach(function(p){
+    var el=$(p[2]), g=curGear(p[0]);
+    el.className="slot"+(g?" filled":"");
+    el.innerHTML="";
+    function mk(cls,txt){
+      var d=document.createElement("div");
+      d.className=cls; d.textContent=txt; el.appendChild(d); return d;
+    }
+    mk("sh",p[1]);
+    if(g){
+      mk("sn",g.ic+" "+g.nm);
+      mk("sd",g.ds);
+      var off=mk("sx","脱下");
+      off.onclick=function(){ unequipGear(p[0]); sfx.tap(); };
+    } else {
+      mk("sd","空着 —— 在下面挑一件穿上");
+    }
+  });
+
+  var box=$("gearList"); box.innerHTML="";
+  var bag=(S.bag||[]).slice();
+  if(!bag.length){
+    box.innerHTML='<div class="sitem"><div class="mid"><div class="ds">'+
+      '还没有任何装备。商店里会随机上架一件，买回来就能在这儿穿。</div></div></div>';
+    return;
+  }
+  bag.forEach(function(id){
+    var g=GEAR_BY[id]; if(!g) return;
+    var on=(S.gear.weapon===id||S.gear.acc===id);
+    var d=document.createElement("div");
+    d.className="sitem"+(on?" done":"");
+    d.innerHTML='<div class="ic">'+g.ic+'</div>'+
+      '<div class="mid"><div class="nm">'+g.nm+' <span style="font-size:10px;color:#8f7c60;">'+
+      (g.slot==="weapon"?"武器":"饰品")+'</span></div>'+
+      '<div class="ds">'+g.ds+'</div></div>';
+    var b=document.createElement("button");
+    b.className="buy";
+    b.textContent=on?"已穿上":"穿上";
+    b.disabled=on;
+    b.onclick=function(){ if(equipGear(id)){ sfx.ok(); toast("换上「"+g.nm+"」"); } };
+    d.appendChild(b);
+    box.appendChild(d);
+  });
+}
+function doTalk(){
+  var lines=[pick(window.IDLE_LINES)];
+  var n=rnd(3);
+  if(n>=1) lines.push(pick(window.IDLE_LINES));
+  if(n===2) lines.push(pick(window.IDLE_LINES));
+  var up=(S.bond<MAXBOND);
+  if(up) S.bond++;
+  S.talks++;
+  setBg("day");
+  runStory(lines,function(){
+    sfx.ok(); hud();
+    if(up) finishAction("交流",["和霍姆说了很多话。","羁绊提升到 "+S.bond+"，出招更有底气了。"]);
+    else   finishAction("交流",["和霍姆说了很多话。","羁绊已经到顶了，霍姆听得眼睛发亮。"]);
+  });
+}
+
+function finishAction(title,lines){
+  hud();
+  $("resTitle").textContent=title;
+  $("resLines").innerHTML=lines.join("<br/><br/>");
+  $("btnNext").textContent=(S.day>=S.maxDay)?"迎 接 终 战":"继 续";
+  $("btnNext").onclick=function(){ sfx.tap(); nextDay(); };
+  show("result");
+}
+
+/* 30 天 · 五个首领节点（原作 11 只怪里的 boss 档） */
+var BOSS_DAY={6:4, 12:5, 18:7, 24:8, 30:10};
+
+function nextDay(){
+  S.day++;
+  if(S.day>MAXDAY){ endGame(true); return; }
+  var bi=BOSS_DAY[S.day];
+  if(bi!==undefined){
+    var pre=(S.day===30? window.STORY.bossPre2 : window.STORY.bossPre)||[];
+    runStory(pre,function(){ startBattle(bi,null); });
+    return;
+  }
+  renderDay();
+}
+
+/* ═══════ 战斗 ═══════ */
+var B=null;
+
+/* ── 七系招式树：11 级分级与原作 HomuMotion.csv 完全一致（日文名逐条对照译出）
+      qte 字段只是原作 categoryQTE 的存档编号，网页版已不再用判定条 ── */
+var TREE=[
+  {id:"slash", kk:"剑", kind:"atk",   qte:0,
+   nm:["攻击","斩击","舍身","破坏","破铠","破刃","无双连击","舍身一击","破坏一击","碎盔","碎剑"]},
+  {id:"guard", kk:"盾", kind:"def",   qte:1,
+   nm:["防御","守护构","破邪构","待魔构","不屈构","治愈构","仁王构","破邪守护","待魔守护","不灭之笼","治愈之笼"]},
+  {id:"poisn", kk:"毒", kind:"poi",   qte:4,
+   nm:["毒突","要害突","毒素一闪","毒素之笼","火焰突","火焰之笼","致命一击","剧毒一闪","剧毒之笼","业火突","灼热之笼"]},
+  {id:"fist",  kk:"拳", kind:"heal",  qte:3,
+   nm:["治愈拳","再生拳","魔力拳","闪耀拳","抚愈拳","安宁拳","苏生拳","篡夺拳","幻惑拳","奇迹拳","祈祷拳"]},
+  {id:"power", kk:"蓄", kind:"buf",   qte:2,
+   nm:["蓄力","激怒","暴走","力量提升","应援","垫步","月光","超载","极限突破","决胜台词","准备万全"]},
+  {id:"sneak", kk:"袭", kind:"amb",   qte:4,
+   nm:["偷袭","影缝","玩火","剧毒警告","削弱","惊吓","影缚","玩火奥义","阿鼻叫唤","麻痹一击","妨碍工作"]},
+  {id:"thorn", kk:"棘", kind:"thorn", qte:2,
+   nm:["荆棘林","荆棘盾","针席","要害刺","威吓针","苦痛针","刃大盾","枪衾","针治疗","恐怖针","苦难针"]}
+];
+var TREE_BY={}; TREE.forEach(function(t){ TREE_BY[t.id]=t; });
+var MAXLV=11;
+var LV_NEED=[1,2,3,5,7,9,11,13,15,17];   /* 升到下一级所需熟练度，满级累计 83 次 */
+
+function valOf(t,lv){
+  var n=lv-1;
+  switch(t.kind){
+    case "atk":   return 6  + n*2.2;
+    case "def":   return 8  + n*1.8;
+    case "poi":   return 3  + n*1.2;
+    case "heal":  return 8  + n*2.2;
+    case "buf":   return 1.6+ n*0.1;
+    case "amb":   return 5  + n*1.7;
+    case "thorn": return 5  + n*1.5;
+  }
+  return 0;
+}
+function fmtVal(t,lv){
+  var v=valOf(t,lv);
+  switch(t.kind){
+    case "atk":   return "伤害 "+Math.round(v);
+    case "def":   return "护盾 "+Math.round(v);
+    case "poi":   return "伤 "+Math.round(v)+"·毒"+Math.round(3+(lv-1)*0.5);
+    case "heal":  return "回复 "+Math.round(v);
+    case "buf":   return "下击 ×"+v.toFixed(1);
+    case "amb":   return "穿盾 "+Math.round(v);
+    case "thorn": return "盾 "+Math.round(v)+"·反"+Math.round(3+(lv-1)*1.2);
+  }
+  return "";
+}
+/* 出招随机：不再有左右判定条，点卡即结算，手感交给骰子。
+   crit 18% 会心 ×1.5 ／ slip 12% 手滑 ×0.7 ／ 其余 70% 平常 0.92~1.12 */
+var ROLL_CRIT=0.18, ROLL_SLIP=0.30, MUL_CRIT=1.5, MUL_SLIP=0.7;
+
+function rollHit(){
+  var r=Math.random();
+  if(r<ROLL_CRIT) return {mul:MUL_CRIT, tag:"crit"};
+  if(r<ROLL_SLIP) return {mul:MUL_SLIP, tag:"slip"};
+  return {mul:0.92+Math.random()*0.2, tag:""};
+}
+/* 羁绊替代原来的判定区宽度：羁绊 1→5 给出 1.00→1.20 倍 */
+function bondMul(){ return 1+(S.bond-1)*0.05; }
+
+/* 原作 11 只敌人，按 img_all 里的 待機/予兆/被ダメ/倒れ/バフ 五套动画逐只对上
+   sk  该怪的招牌动作（会附加状态，见 STATUS）
+   dp  出现在哪些区域（zone id） */
+var FOES=[
+  {nm:"爪鸟",       hp:26,  atk:5,  art:"clawbird",    tier:1, dp:["wasteland","forest"],
+   sk:{k:"atk", nm:"俯冲啄击", mul:1.4}},
+  {nm:"剪刀虫",     hp:34,  atk:6,  art:"scissorbug",  tier:1, dp:["wasteland","forest","forest_cave"],
+   sk:{k:"pierce", nm:"剪断", mul:1.2}},
+  {nm:"鳞甲兽",     hp:46,  atk:7,  art:"scale_beast", tier:1, dp:["wasteland","forest","volcano"],
+   sk:{k:"shield", nm:"硬化鳞片", mul:8}},
+  {nm:"藤蔓兽",     hp:52,  atk:8,  art:"vine_beast",  tier:2, dp:["forest","forest_cave"],
+   sk:{k:"status", nm:"缠绕", st:"poison", mul:1.1}},
+  {nm:"史莱姆魔像", hp:64,  atk:9,  art:"slime_golem", tier:2, dp:["forest_cave","sea_cave"],
+   boss:true, sk:{k:"status", nm:"黏液喷射", st:"soften", mul:1.2}},
+  {nm:"高阶魔像",   hp:82,  atk:10, art:"hi_golem",    tier:2, dp:["forest_cave","trial","volcano"],
+   boss:true, sk:{k:"buff", nm:"铁块重铸", mul:1.5}},
+  {nm:"红龙",       hp:104, atk:13, art:"red_dragon",  tier:3, dp:["volcano"],
+   boss:true, sk:{k:"status", nm:"烈焰吐息", st:"burn", mul:1.7}},
+  {nm:"泰蒂亚",     hp:96,  atk:12, art:"tetia",       tier:3, dp:["sea_cave","trial"],
+   boss:true, sk:{k:"heal", nm:"圣光", mul:14}},
+  {nm:"克罗瓦泽",   hp:112, atk:13, art:"croise",      tier:3, dp:["trial","sea_cave"],
+   boss:true, sk:{k:"status", nm:"咒缚", st:"weaken", mul:1.3}},
+  {nm:"霍姆·黑",    hp:150, atk:15, art:"homukuro",    tier:4, dp:["trial"],
+   boss:true, sk:{k:"buff", nm:"暴走", mul:1.8}},
+  {nm:"巴尔塔萨",   hp:180, atk:16, art:"balthasar",   tier:4, dp:[],
+   boss:true, sk:{k:"status", nm:"绝望宣告", st:"wound", mul:1.6}}
+];
+
+/* 状态表：id → 显示名 / 图标 / 效果说明
+   down 是「每回合掉血」，mul 是「对敌/对己的加成」 */
+var STATUS={
+  poison:{nm:"中毒", ic:"assets/status/poison.webp", down:4, turns:4, color:"#8fd66a",
+          tip:"每回合损失体力"},
+  burn:  {nm:"灼烧", ic:"assets/status/burn.webp",   down:6, turns:3, color:"#e88a4a",
+          tip:"每回合损失体力，伤害更高"},
+  wound: {nm:"负伤", ic:"assets/status/wound.webp",  down:3, turns:5, color:"#e2766a",
+          tip:"受伤加重，回复减半"},
+  soften:{nm:"软化", ic:"assets/status/soften.webp", down:0, turns:4, color:"#b39ddb",
+          tip:"防御下降"},
+  weaken:{nm:"脱力", ic:"assets/status/weaken.webp", down:0, turns:3, color:"#9aa4b2",
+          tip:"攻击力下降"},
+  armor: {nm:"装甲", ic:"assets/status/armor.webp",  down:0, turns:4, color:"#7fb2e8",
+          tip:"防御上升"},
+  strength:{nm:"筋力",ic:"assets/status/strength.webp",down:0,turns:5,color:"#e8c37a",
+          tip:"攻击力上升"}
+};
+
+/* ═══════ 敌人帧动画 ═══════
+   原作每只怪都有 待機/予兆/被ダメ/倒れ/バフ 五套帧，导出在 assets/foe_anim/<art>/
+   待機 8 帧慢循环，受击 8 帧快放一次，倒地 6 帧停在末帧。 */
+var FA={art:null, mode:"idle", i:0, t0:0, loop:true, busy:false, done:null};
+var FA_N={idle:8, warn:4, hit:8, down:6, buff:6};
+var FA_FPS={idle:7, warn:12, hit:20, down:14, buff:12};
+var FA_NOBUFF=["scale_beast"];      /* 这只没バフ套，用被ダメ顶 */
+
+function faUrl(art,mode,i){ return "assets/foe_anim/"+art+"/"+mode+"_"+i+".webp"; }
+function faCount(art,mode){
+  if(mode==="buff" && FA_NOBUFF.indexOf(art)>-1) return 0;
+  return FA_N[mode]||0;
+}
+function faPreload(art){
+  ["idle","warn","hit","down","buff"].forEach(function(mode){
+    var n=faCount(art,mode);
+    for(var i=0;i<n;i++){ var im=new Image(); im.src=faUrl(art,mode,i); }
+  });
+}
+function faRender(){
+  if(!FA.art) return;
+  var mode=FA.mode, n=faCount(FA.art,mode);
+  if(!n){ mode="hit"; n=faCount(FA.art,"hit"); }
+  var k=Math.min(n-1, FA.i|0);
+  $("foeSprite").style.backgroundImage='url("'+faUrl(FA.art,mode,k)+'")';
+}
+/* 播一套动作；loop=true 无限循环，否则播完回调 */
+function faPlay(mode,loop,onDone){
+  if(!FA.art) return;
+  if(!faCount(FA.art,mode)) mode="hit";
+  FA.mode=mode; FA.i=0; FA.t0=0; FA.loop=!!loop; FA.busy=!loop; FA.done=onDone||null;
+  faRender();
+  if(!FA.rafOn){ FA.rafOn=true; requestAnimationFrame(faTick); }
+}
+function faTick(t){
+  if(!FA.art || !FA.busy && FA.loop===false){ FA.rafOn=false; return; }
+  var n=faCount(FA.art,FA.mode)||1, fps=FA_FPS[FA.mode]||10;
+  if(!FA.t0) FA.t0=t;
+  var el=Math.floor((t-FA.t0)/1000*fps);
+  if(FA.loop){
+    var ni=el%n;
+    if(ni!==FA.i){ FA.i=ni; faRender(); }
+  } else {
+    if(el>=n){
+      FA.i=n-1; faRender();
+      var cb=FA.done; FA.done=null; FA.busy=false; FA.rafOn=false;
+      if(cb) cb();
+      return;
+    }
+    if(el!==FA.i){ FA.i=el; faRender(); }
+  }
+  requestAnimationFrame(faTick);
+}
+/* 受击：播一次被ダメ再回待机 */
+function faHit(cb){
+  faPlay("hit",false,function(){ faPlay("idle",true); if(cb) cb(); });
+}
+/* 倒地：停在末帧 */
+function faDown(){ faPlay("down",false,null); }
+/* 蓄力/强化预兆 */
+function faWarn(){ faPlay("warn",false,function(){ faPlay("idle",true); }); }
+
+/* ═══════ 招式特效帧动画 ═══════ */
+var FX_MAP={slash:["slash1","slash3","slash3","slash_big"], guard:null,
+            poisn:["pierce"], fist:["punch"], power:["combo"],
+            sneak:["slash2"], thorn:["fall"]};
+function playFx(treeId,lv){
+  var list=FX_MAP[treeId];
+  if(!list || !list.length) return;
+  var set=list[Math.min(list.length-1, Math.floor((lv-1)/4))];
+  var layer=$("fxLayer");
+  layer.innerHTML="";
+  var d=document.createElement("div");
+  d.className="fxr";
+  layer.appendChild(d);
+  var i=0, t0=0, FPS=26, N=6;
+  function tick(t){
+    if(!t0) t0=t;
+    var k=Math.floor((t-t0)/1000*FPS);
+    if(k>=N){ d.remove(); return; }
+    d.style.backgroundImage='url("assets/fx/'+set+'/'+k+'.webp")';
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+function lashGo(){ var l=$("lash"); l.classList.remove("on"); void l.offsetWidth; l.classList.add("on"); }
+
+/* 立绘拿不到时至少给个占位，别让对手整片消失（之前空过一次，就是请求失败没兜底） */
+function setFoeArt(art){
+  FA.art=art; FA.busy=false; FA.loop=true; FA.rafOn=false;
+  faPreload(art);
+  $("foeSprite").style.backgroundImage="";
+  faPlay("idle",true);
+}
+/* 开局把所有怪的待机帧预载进缓存 */
+function preloadFoes(){
+  FOES.forEach(function(x){ faPreload(x.art); });
+}
+
+function startBattle(foeIdx, onWin){
+  var f=FOES[foeIdx];
+  FA.rafOn=false;
+  B={foe:{nm:f.nm,hp:f.hp,max:f.hp,atk:f.atk,boss:!!f.boss,shield:0,charge:false,
+          status:{}, sk:f.sk, tier:f.tier||1},
+     shield:0, charge:false, chargeMul:1, thorns:0, hand:[], justUp:null,
+     st:{}, turn:0, busy:false, onWin:onWin||null};
+  clearSprites();
+  setBg(f.boss?"night":(f.tier>=3?"boss":"day"));
+  bgm(f.boss?"boss":"battle");
+  hud(); show("battle");
+  $("foeBox").classList.remove("hit");
+  setFoeArt(f.art);
+  $("foeName").textContent=B.foe.nm+(B.foe.boss?" ⟡":"");
+  $("blog").textContent=B.foe.boss?"强敌出现了。":"敌人出现了。";
+  $("btnSolaris").disabled=false;
+  $("btnSolaris").onclick=solarisBurst;
+  $("foeStatus").innerHTML="";
+  $("fxLayer").innerHTML="";
+  /* 刚显示的头 260ms 不接点击，挡住从上一屏穿透下来的那一下 */
+  $("battle").style.pointerEvents="none";
+  setTimeout(function(){ $("battle").style.pointerEvents=""; },260);
+  drawHand(); renderSkills(); renderFoe();
+}
+
+/* 状态：给谁上、上什么、几回合 */
+function addStatus(who, st, turns){
+  if(!STATUS[st]) return;
+  var box=(who==="foe")?B.foe.status:B.st;
+  box[st]=Math.max(box[st]||0, turns||STATUS[st].turns);
+}
+function tickStatus(who){
+  var box=(who==="foe")?B.foe.status:B.st;
+  Object.keys(box).forEach(function(k){
+    if(--box[k]<=0) delete box[k];
+  });
+}
+function stHas(who,st){ return !!(((who==="foe")?B.foe.status:B.st)[st]); }
+
+function renderFoe(){
+  var f=B.foe;
+  $("foeHp").style.width=Math.max(0,f.hp/f.max*100)+"%";
+  $("foeHpTx").textContent=Math.max(0,Math.round(f.hp))+" / "+f.max+(f.shield>0?"  ⛨"+f.shield:"");
+  var it=$("foeIntent");
+  if(f.charge){ it.className="intent it-buf"; it.textContent="蓄力中…"; }
+  else if(f.shield>0){ it.className="intent it-def"; it.textContent="举盾"; }
+  else { it.className="intent it-atk"; it.textContent="攻击 "+f.atk; }
+  /* 状态图标 */
+  var box=$("foeStatus"); box.innerHTML="";
+  Object.keys(f.status).forEach(function(k){
+    var s=STATUS[k]; if(!s) return;
+    var e=document.createElement("i");
+    e.style.backgroundImage='url("'+s.ic+'")';
+    e.title=s.nm+" · "+s.tip;
+    box.appendChild(e);
+  });
+  /* 玩家的状态挂在自己身上，用底部提示带过来 */
+  var pst=Object.keys(B.st).filter(function(k){ return STATUS[k]; });
+  if(pst.length){
+    var tag=pst.map(function(k){ return STATUS[k].nm+"("+B.st[k]+")"; }).join(" ");
+    it.textContent+=" · 自身:"+tag;
+  }
+}
+function renderSkills(){
+  var box=$("skills"); box.innerHTML="";
+  var hand=(B&&B.hand)||[];
+  hand.forEach(function(t){
+    var lv=S.lv[t.id]||1;
+    var need=lv>=MAXLV?0:LV_NEED[lv-1];
+    var pct=lv>=MAXLV?100:Math.min(100,Math.round((S.exp[t.id]||0)/need*100));
+    var d=document.createElement("div");
+    d.className="card-sk"+(B&&B.justUp===t.id?" up":"");
+    d.innerHTML=
+      '<div class="kk">'+t.kk+'</div>'+
+      '<div class="nm">'+t.nm[lv-1]+'</div>'+
+      '<div class="lv">Lv.'+lv+(lv>=MAXLV?' 极':'')+'</div>'+
+      '<div class="vv">'+fmtVal(t,lv)+'</div>'+
+      '<div class="eb"><i style="width:'+pct+'%"></i></div>';
+    d.onclick=function(){ useCard(t); };
+    box.appendChild(d);
+  });
+  if(B) B.justUp=null;
+}
+/* 抽三张不同系的卡 */
+function drawHand(){
+  var pool=TREE.slice(); B.hand=[];
+  for(var i=0;i<3&&pool.length;i++){
+    B.hand.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  }
+}
+function log(t){ $("blog").textContent=t; }
+function addFx(text,cls,x,y){
+  var e=document.createElement("div");
+  e.className="fx "+cls; e.textContent=text;
+  e.style.left=(x||50)+"%"; e.style.top=(y||38)+"%";
+  $("battle").appendChild(e);
+  setTimeout(function(){ e.remove(); },1000);
+}
+function flash(){ var f=$("flash"); f.style.opacity=1; setTimeout(function(){ f.style.opacity=0; },140); }
+function shakeFoe(){
+  var b=$("foeBox"), s=$("foeSprite");
+  b.classList.add("hit"); s.classList.add("hit");
+  setTimeout(function(){ b.classList.remove("hit"); s.classList.remove("hit"); },270);
+}
+
+/* ── 出招飘字（替代原来的判定条，纯反馈，不用点） ── */
+function callout(txt,cls){
+  var el=$("callout");
+  el.textContent=txt; el.className=cls||"";
+  el.classList.add("on");
+  clearTimeout(callout._t);
+  callout._t=setTimeout(function(){ el.classList.remove("on"); },640);
+}
+
+/* ── 熟练度 ── */
+function gainExp(t){
+  var id=t.id, lv=S.lv[id];
+  if(lv>=MAXLV) return false;
+  S.exp[id]=(S.exp[id]||0)+1;
+  if(S.exp[id]>=LV_NEED[lv-1]){
+    S.exp[id]=0; S.lv[id]=lv+1; B.justUp=id;
+    return true;
+  }
+  return false;
+}
+
+/* ── 出牌：点卡即出招。没有判定条、没有二次确认，手感交给骰子 ── */
+function useCard(t){
+  if(!B||B.busy) return;
+  B.busy=true;
+  var hs=$("homuSprite");
+  hs.classList.add("atk");
+  setTimeout(function(){ hs.classList.remove("atk"); },160);
+
+  var lv=S.lv[t.id], nm=t.nm[lv-1];
+  /* 留 160ms 让「霍姆冲上去」的动作看得见，再结算 */
+  setTimeout(function(){ resolve(t,lv,nm,rollHit()); },160);
+}
+
+function resolve(t,lv,nm,r){
+  var f=B.foe, v=valOf(t,lv), cm=B.chargeMul||1, m=r.mul*bondMul();
+  if(r.tag==="crit") callout("会 心","crit");
+  else if(r.tag==="slip") callout("手 滑","slip");
+  /* 身上有「脱力」就打不痛，有「筋力」就更痛 */
+  if(stHas("p","weaken")) m*=0.72;
+  if(stHas("p","strength")) m*=1.22;
+  playFx(t.id,lv); lashGo();
+
+  if(t.kind==="atk"){
+    var dmg=Math.round((v+S.pow)*cm*m);
+    if(stHas("p","wound")) dmg=Math.round(dmg*1.15);
+    var ab=Math.min(f.shield,dmg); f.shield-=ab; dmg-=ab;
+    f.hp-=Math.max(0,dmg);
+    addFx("-"+dmg,"dmg",50,34); faHit(); 
+    if(r.tag==="crit") flash();
+    sfx.hit();
+    log(r.tag==="crit" ? "会心！霍姆的「"+nm+"」切开防线，造成 "+dmg+" 点伤害。"
+      : r.tag==="slip" ? "「"+nm+"」踏错半步，只造成 "+dmg+" 点。"
+      : "霍姆的「"+nm+"」命中，造成 "+dmg+" 点伤害。");
+  }
+  else if(t.kind==="def"){
+    var blk=Math.round((v+S.def)*(stHas("p","soften")?0.7:1)*m);
+    B.shield+=blk; addStatus("p","armor",3);
+    addFx("⛨"+blk,"blk",50,42); sfx.ok();
+    log("霍姆摆出「"+nm+"」，获得 "+blk+" 点护盾，进入装甲状态。");
+  }
+  else if(t.kind==="poi"){
+    var pd=Math.round((v+S.pow*0.6)*cm*m);
+    var pab=Math.min(f.shield,pd); f.shield-=pab; pd-=pab;
+    f.hp-=Math.max(0,pd);
+    var psn=Math.round(2+(lv-1)*0.4);
+    f.status.poison=Math.max(f.status.poison||0, 4);
+    addFx("-"+pd,"dmg",50,34); faHit(); sfx.hit();
+    log("「"+nm+"」造成 "+pd+" 点伤害，敌人陷入中毒。");
+  }
+  else if(t.kind==="heal"){
+    var heal=Math.round((v+S.pow*0.5)*m);
+    if(stHas("p","wound")) heal=Math.round(heal*0.5);
+    S.hp=Math.min(S.maxHp,S.hp+heal);
+    if(B.st.poison) delete B.st.poison;
+    addFx("+"+heal,"heal",50,42); sfx.heal(); hud();
+    log("「"+nm+"」回复 "+heal+" 点体力"+(stHas("p","wound")?"（负伤让回复减半）":"")+"。");
+  }
+  else if(t.kind==="buf"){
+    B.chargeMul=v; addStatus("p","strength",3);
+    addFx("×"+v.toFixed(1),"buf",50,42); sfx.ok();
+    log("霍姆「"+nm+"」——下一击威力 ×"+v.toFixed(1)+"，并进入筋力状态。");
+  }
+  else if(t.kind==="amb"){
+    var ad=Math.round((v+S.pow)*cm*m)+2;
+    f.hp-=ad;                                   /* 穿盾：不减 shield */
+    addFx("-"+ad,"dmg",50,30); faHit(); sfx.crit();
+    log("「"+nm+"」无视护盾，造成 "+ad+" 点伤害。");
+  }
+  else if(t.kind==="thorn"){
+    var tb=Math.round(v*m);
+    B.shield+=tb; B.thorns=Math.round(3+(lv-1)*1.2);
+    addStatus("p","armor",3);
+    addFx("⛨"+tb,"blk",50,42); sfx.ok();
+    log("「"+nm+"」布下荆棘，护盾 +"+tb+"，反伤 "+B.thorns+"。");
+  }
+
+  var up=gainExp(t);
+  if(up){                                       /* 升级是即时反馈，不排队 */
+    var nn=t.nm[S.lv[t.id]-1];
+    toast("「"+nn+"」习得！");
+    log($("blog").textContent+"　※ 熟练度提升，习得「"+nn+"」");
+    hud(); renderSkills();                      /* 卡面当场改名换级 */
+  }
+  if(t.kind!=="buf") B.chargeMul=1;             /* 蓄力只吃一发 */
+  B.charge=(t.kind==="buf");
+  renderFoe();
+  setTimeout(function(){
+    if(f.hp<=0) winBattle(); else foeTurn();
+  }, up?820:520);
+}
+/* ── 索拉丽斯接手 ── */
+function solarisBurst(){
+  if(!B||B.busy) return;
+  if(S.hp<=10){ toast("体力不够，接不了手"); return; }
+  B.busy=true;
+  S.hp-=10; hud();
+  $("btnSolaris").disabled=true;
+  log("索拉丽斯亲自上阵 —— 用魔力强行驱动术式！");
+  flash();
+  setTimeout(function(){
+    var f=B.foe;
+    var dmg=Math.round(16+S.pow*1.6);
+    var ab=Math.min(f.shield,Math.round(dmg*0.4));
+    f.shield-=ab; dmg-=ab;
+    f.hp-=dmg;
+    addFx("-"+dmg,"dmg",50,30); shakeFoe(); sfx.crit(); renderFoe();
+    setTimeout(function(){ if(f.hp<=0) winBattle(); else foeTurn(); },700);
+  },420);
+}
+
+/* ── 敌人回合：先结算双方状态，再决定动作 ── */
+function foeTurn(){
+  var f=B.foe;
+
+  /* 敌人身上的持续伤害 */
+  var dot=0, dotNm=[];
+  ["poison","burn","wound"].forEach(function(k){
+    if(f.status[k]){ dot+=STATUS[k].down; dotNm.push(STATUS[k].nm); }
+  });
+  if(dot>0){
+    var pd=Math.min(dot,f.hp);
+    f.hp-=pd;
+    addFx("-"+pd,"poison",50,36); faHit();
+    log(f.nm+"受到 "+pd+" 点"+dotNm.join("/")+"伤害。");
+    renderFoe();
+    if(f.hp<=0){ setTimeout(winBattle,600); return; }
+  }
+
+  setTimeout(function(){
+    /* 蓄力完毕放重击 */
+    if(f.charge){
+      f.charge=false; faPlay("warn",false,function(){ faPlay("idle",true); });
+      renderFoe();
+      hurtPlayer(f.atk*2, f.nm+"的重击");
+      return;
+    }
+    var r=Math.random();
+    /* 血量低于四成更容易放大招 */
+    var lowHp=f.hp/f.max<0.4;
+    if(r < (lowHp?0.4:0.24)){
+      foeCast(); return;
+    }
+    /* 蓄力 */
+    if(r < (lowHp?0.52:0.36)){
+      f.charge=true; faWarn(); renderFoe();
+      log(f.nm+"开始蓄力，似乎要放什么大招……");
+      nextPlayerTurn(); return;
+    }
+    /* 普攻 */
+    var atk=f.atk;
+    if(f.status.strength) atk=Math.round(atk*1.25);
+    if(f.status.weaken) atk=Math.round(atk*0.75);
+    hurtPlayer(atk, f.nm+"的攻击");
+  },430);
+}
+
+/* 敌人放招牌技能：有的上状态、有的加盾、有的回血、有的爆发 */
+function foeCast(){
+  var f=B.foe, sk=f.sk;
+  if(!sk){ hurtPlayer(f.atk, f.nm+"的攻击"); return; }
+  faPlay("buff",false,function(){ faPlay("idle",true); });
+  if(sk.k==="shield"){
+    f.shield+=sk.mul; addStatus("foe","armor",4);
+    addFx("⛨"+sk.mul,"blk",50,30); sfx.ok(); renderFoe();
+    log(f.nm+"使出「"+sk.nm+"」，护盾 +"+sk.mul+"。");
+    nextPlayerTurn(); return;
+  }
+  if(sk.k==="buff"){
+    addStatus("foe","strength",4);
+    addFx("↑攻","buf",50,30); sfx.ok(); renderFoe();
+    log(f.nm+"使出「"+sk.nm+"」，攻击力上升。");
+    nextPlayerTurn(); return;
+  }
+  if(sk.k==="heal"){
+    var h=Math.round(f.max*0.16+sk.mul);
+    f.hp=Math.min(f.max,f.hp+h);
+    addFx("+"+h,"heal",50,30); sfx.heal(); renderFoe();
+    log(f.nm+"使出「"+sk.nm+"」，回复 "+h+" 点体力。");
+    nextPlayerTurn(); return;
+  }
+  if(sk.k==="pierce"){
+    var d=Math.round(f.atk*sk.mul);
+    B.shield=Math.max(0,B.shield-Math.round(d*0.5));
+    hurtPlayer(d, f.nm+"的「"+sk.nm+"」（破盾）");
+    return;
+  }
+  if(sk.k==="status"){
+    addStatus("p",sk.st,STATUS[sk.st].turns);
+    if(sk.st==="soften") B.shield=Math.max(0,Math.round(B.shield*0.5));
+    var dm=Math.round(f.atk*sk.mul);
+    addFx("☠"+STATUS[sk.st].nm,"poison",50,44); sfx.hurt();
+    hurtPlayer(dm, f.nm+"的「"+sk.nm+"」");
+    return;
+  }
+  hurtPlayer(Math.round(f.atk*(sk.mul||1)), f.nm+"的「"+sk.nm+"」");
+}
+function hurtPlayer(raw,label){
+  var dmg=raw;
+  if(B.shield>0){ var ab=Math.min(B.shield,dmg); B.shield-=ab; dmg-=ab; }
+  var defMul=stHas("p","soften")?0.3:0.6;
+  if(stHas("p","armor")) defMul+=0.25;
+  dmg=Math.max(0,Math.round(dmg-S.def*defMul));
+  if(stHas("p","wound")) dmg=Math.round(dmg*1.2);
+  S.hp-=dmg;
+  var hs=$("homuSprite");
+  hs.classList.add("hurt"); setTimeout(function(){ hs.classList.remove("hurt"); },200);
+  addFx("-"+dmg,"dmg",50,52); sfx.hurt(); flash(); hud();
+  log(label+"！霍姆受到 "+dmg+" 点伤害。");
+  if(S.hp<=0){ setTimeout(function(){ endGame(false); },700); return; }
+  /* 荆棘反伤：只吃一次 */
+  if(B.thorns>0){
+    var tr=B.thorns; B.thorns=0;
+    B.foe.hp-=tr; renderFoe();
+    addFx("-"+tr,"dmg",50,26);
+    log("荆棘刺了回去 —— "+B.foe.nm+"受到 "+tr+" 点反伤。");
+    if(B.foe.hp<=0){ setTimeout(winBattle,900); return; }
+  }
+  nextPlayerTurn();
+}
+function nextPlayerTurn(){
+  if(!B) return;
+  /* 玩家的持续伤害 + 状态回合递减 */
+  var dot=0, nm=[];
+  ["poison","burn"].forEach(function(k){
+    if(B.st[k]){ dot+=STATUS[k].down; nm.push(STATUS[k].nm); }
+  });
+  if(dot>0){
+    S.hp=Math.max(0,S.hp-dot);
+    addFx("-"+dot,"poison",50,60); hud();
+    log("霍姆受到 "+dot+" 点"+nm.join("/")+"伤害。");
+    if(S.hp<=0){ setTimeout(function(){ endGame(false); },600); return; }
+  }
+  tickStatus("p"); tickStatus("foe");
+  B.busy=false; B.turn++;
+  $("btnSolaris").disabled=(S.hp<=10);
+  drawHand(); renderFoe(); renderSkills();
+}
+function winBattle(){
+  sfx.win();
+  B.busy=true;
+  faDown();
+  $("foeSprite").classList.add("dead");
+  var isBoss=B.foe.boss;
+  S.wins++;
+  var gold=6+rnd(8)+(isBoss?14:0);
+  var powup=1+rnd(2)+(isBoss?2:0);
+  var defup=rnd(2)+(isBoss?1:0);
+  S.gold+=gold; S.pow+=powup; S.def+=defup;
+  hud();
+  if(B.onWin){ var cb=B.onWin; B.onWin=null; setTimeout(cb,300); return; }
+  $("resTitle").textContent=isBoss?"击 破":"胜 利";
+  $("resLines").innerHTML=["击败了 "+B.foe.nm+"。",
+    "力量 +"+powup+"　防御 +"+defup+"　金币 +"+gold].join("<br/><br/>");
+  $("btnNext").textContent=(S.day>=MAXDAY)?"看 结 局":"继 续";
+  $("btnNext").onclick=function(){ sfx.tap(); nextDay(); };
+  show("result");
+}
+
+/* ═══════ 结局 ═══════ */
+function endGame(win){
+  var st = !win ? window.STORY.endBad
+          : (S.bond>=4 ? window.STORY.endBond
+          : (S.bond>=2 ? window.STORY.endNormal : window.STORY.endBad));
+  setBg(win?"clear":"night");
+  bgm("ending");
+  runStory(st,function(){
+    var title,sub;
+    if(!win){ title="— 试炼失败 —"; sub="体力耗尽，倒在了半路上。"; }
+    else if(S.bond>=4){ title="— 羁绊结局 —"; sub="和霍姆一起，走向岛外。"; }
+    else if(S.bond>=2){ title="— 普通结局 —"; sub="计划还在继续，路还很长。"; }
+    else { title="— 沉默的结局 —"; sub="一个人的话，终究走不到终点。"; }
+    $("endTitle").textContent=title;
+    $("endLines").innerHTML=sub+"<br/><br/>"+
+      "羁绊 "+S.bond+"　力量 "+S.pow+"　防御 "+S.def+"<br/>"+
+      "战斗 "+S.wins+" 次　交流 "+S.talks+" 次<br/>"+
+      "剩余体力 "+Math.max(0,Math.round(S.hp));
+    show("end");
+    clearSprites();
+  });
+}
+
+/* ═══════ 启动 ═══════ */
+preloadFoes();
+$("btnStart").onclick=function(){
+  sfx.tap(); ac(); bgm("title");
+  newGame(); hud();
+  setBg("opening");
+  runStory(window.STORY.opening,function(){
+    startBattle(0,function(){
+      runStory(window.STORY.afterFirst,function(){
+        S.day=1; renderDay();
+      });
+    });
+  });
+};
+$("btnAgain").onclick=function(){ sfx.tap(); location.reload(); };
+$("btnWork").onclick=function(){ workShop(); };
+$("btnLeave").onclick=function(){ sfx.tap(); leaveShop(); };
+$("btnGearFromShop").onclick=function(){ sfx.tap(); openGear(function(){ bgm("shop"); show("shop"); renderShop(); }); };
+$("btnZoneBack").onclick=function(){ sfx.tap(); bgm(S.day<=MAXDAY*0.35?"day":"night"); renderDay(); };
+$("btnAdvance").onclick=function(){ sfx.card(); advanceZone(); };
+$("btnSearch").onclick=function(){ sfx.tap(); searchZone(); };
+$("btnRetreat").onclick=function(){ sfx.tap(); retreatAsk(); };
+$("btnGearBack").onclick=function(){ closeGear(); };
+$("btnMute").onclick=function(){ bgmMute(!BGM.muted); };
+$("dlg").onclick=function(e){ e.stopPropagation(); advance(); };
+/* 跳过按钮必须自己吃下 pointerdown —— 舞台那层也在监听 pointerdown，
+   靠 click + stopPropagation 会晚一步，先被舞台推进一句，看起来就像「点了没用」。
+   两个事件都接，用闸门防重复执行。 */
+var _skipLock=false;
+function doSkip(){
+  if(_skipLock) return;
+  _skipLock=true;
+  setTimeout(function(){ _skipLock=false; },400);
+  sfx.tap();
+  /* 延一帧再收尾：否则同一次点击的 click 会穿透到刚显示的战斗页按钮上
+     （实测会白扣 10 点体力触发「索拉丽斯接手」） */
+  setTimeout(skipStory,110);
+}
+$("dlgSkip").addEventListener("pointerdown",function(e){
+  e.stopPropagation(); e.preventDefault(); doSkip();
+});
+$("dlgSkip").onclick=function(e){ e.stopPropagation(); e.preventDefault(); doSkip(); };
+$("stage").addEventListener("pointerdown",function(e){
+  if($("dlg").classList.contains("hide")) return;
+  if(e.target && (e.target.id==="dlgSkip")) return;
+  if(e.target && e.target.closest && e.target.closest("#dlgSkip")) return;
+  if(e.target && e.target.closest && e.target.closest("#dlg")) return;
+  advance();
+});
+function toast(m){
+  var t=$("toast"); t.textContent=m; t.classList.add("on");
+  clearTimeout(toast._t); toast._t=setTimeout(function(){ t.classList.remove("on"); },1600);
+}
+
+/* ── 无头测试钩子（tools/selftest.js 用；浏览器里不影响玩法） ── */
+window.__T__={
+  TREE:TREE, NEED:LV_NEED, MAXLV:MAXLV,
+  ROLL:{crit:ROLL_CRIT, slip:ROLL_SLIP, mulCrit:MUL_CRIT, mulSlip:MUL_SLIP},
+  valOf:valOf, fmtVal:fmtVal, useCard:useCard, drawHand:drawHand,
+  rollHit:rollHit, bondMul:bondMul, resolve:resolve,
+  renderSkills:renderSkills, gainExp:gainExp, newGame:newGame,
+  skipStory:skipStory, startBattle:startBattle, FOES:FOES, STATUS:STATUS,
+  addStatus:addStatus, renderFoe:renderFoe, tickStatus:tickStatus,
+  openShop:openShop, renderShop:renderShop, buyItem:buyItem,
+  workShop:workShop, leaveShop:leaveShop, addExp:addExp,
+  /* 探索 / 装备 / 流程 */
+  ZONES:ZONES, GEAR:GEAR, GEAR_BY:GEAR_BY, BOSS_DAY:BOSS_DAY,
+  openZone:openZone, renderZoneList:renderZoneList, enterZone:enterZone,
+  advanceZone:advanceZone, searchZone:searchZone, retreat:retreat,
+  zoneFoes:zoneFoes, zoneUnlocked:zoneUnlocked,
+  openGear:openGear, renderGear:renderGear, closeGear:closeGear,
+  equipGear:equipGear, unequipGear:unequipGear, curGear:curGear, ownGear:ownGear,
+  gearHas:gearHas, nextDay:nextDay, doAction:doAction, renderDay:renderDay,
+  Z:function(){ return Z; },
+  STOCK:function(){ return SHOP_STOCK; },
+  B:function(){ return B; },
+  S:function(){ return S; },
+  setHand:function(h){ if(B) B.hand=h; }
+};
+
+})();
+</script>
+</body>
+</html>
